@@ -32,8 +32,7 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HelloWorldStateful\HelloWorldStateful.csproj" />
-    <ProjectReference Include="..\HelloWorldStateless\HelloWorldStateless.csproj" />
+    <ProjectReference Include="..\Sheepishly.Ingest\Sheepishly.Ingest.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <PropertyGroup>
