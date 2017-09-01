@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Sheepishly.Tracker;
+using Sheepishly.Tracker.Models;
 
 namespace Sheepishly.Ingest.Controllers
 {
@@ -15,23 +17,35 @@ namespace Sheepishly.Ingest.Controllers
 
         [HttpPost]
         [Route("locations")]
-        public async Task<bool> Log(Object location)
+        public async Task<bool> Log(Location location)
         {
-            throw new NotImplementedException();
+            var reporter = TrackerConnectionFactory.CreateLocationReporter();
+            await reporter.ReportLocation(location);
+            return true;
         }
 
         [HttpGet]
         [Route("sheep/{sheepId}/lastseen")]
         public async Task<DateTime?> LastSeen(Guid sheepId)
         {
-            throw new NotImplementedException();
+            var viewer = TrackerConnectionFactory.CreateLocationViewer();
+            return await viewer.GetLastReportTime(sheepId);
         }
 
         [HttpGet]
         [Route("sheep/{sheepId}/lastlocation")]
         public async Task<object> LastLocation(Guid sheepId)
         {
-            throw new NotImplementedException();
+            var viewer = TrackerConnectionFactory.CreateLocationViewer();
+            var location = await viewer.GetLastSheepLocation(sheepId);
+            if (location == null)
+                return null;
+
+            return new
+            {
+                Latitude = location.Value.Key,
+                Longitude = location.Value.Value
+            };
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Services.Runtime;
 
-namespace HelloStatefulService
+namespace Sheepishly.Tracker
 {
     internal static class Program
     {
@@ -11,11 +12,10 @@ namespace HelloStatefulService
         {
             try
             {
-                ServiceRuntime.RegisterServiceAsync("HelloStatefulServiceType",
-                    context => new HelloStatefulService(context)).GetAwaiter().GetResult();
+                ServiceRuntime.RegisterServiceAsync("TrackerType",
+                    context => new Tracker(context)).GetAwaiter().GetResult();
 
-                ServiceEventSource.Current.ServiceTypeRegistered(Process.GetCurrentProcess().Id, typeof(HelloStatefulService).Name);
-
+                ServiceEventSource.Current.ServiceTypeRegistered(Process.GetCurrentProcess().Id, typeof(Tracker).Name);
                 Thread.Sleep(Timeout.Infinite);
             }
             catch (Exception e)
