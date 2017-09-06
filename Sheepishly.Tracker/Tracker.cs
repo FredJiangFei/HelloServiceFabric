@@ -20,11 +20,15 @@ namespace Sheepishly.Tracker
 
         protected override IEnumerable<ServiceReplicaListener> CreateServiceReplicaListeners()
         {
-                        return new ServiceReplicaListener[0];
+//                        return new ServiceReplicaListener[0];
 
-//            return new[] {
-//                new ServiceReplicaListener(p => new ServiceRemotingListener<Tracker>(p, this))
-//            };
+            
+
+                return new[] {
+//                    new ServiceReplicaListener(p => new ServiceRemotingListener<Tracker>(p, this))
+                    new ServiceReplicaListener(this.CreateServiceRemotingListener)
+                };
+
         }
 
         protected override async Task RunAsync(CancellationToken cancellationToken)

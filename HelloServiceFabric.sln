@@ -1,13 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "HelloServiceFabric", "HelloServiceFabric\HelloServiceFabric.sfproj", "{01D297F0-43CB-451C-BF1A-05C22CE9F2C7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sheepishly.Ingest", "Sheepishly.Ingest\Sheepishly.Ingest.csproj", "{2DC82F2C-0493-461E-B4ED-7C1E899B6B82}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sheepishly.Tracker", "Sheepishly.Tracker\Sheepishly.Tracker.csproj", "{593058B9-8B0E-47F4-B487-87A08387A8E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloStatefulService", "HelloStatefulService\HelloStatefulService.csproj", "{56C73864-AF46-429C-AB19-C7FF366DCBFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloStatelessService", "HelloStatelessService\HelloStatelessService.csproj", "{5A4D1EB5-603D-4B4D-90F9-88B7E6F74C15}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +33,14 @@ Global
 		{593058B9-8B0E-47F4-B487-87A08387A8E7}.Debug|x64.Build.0 = Debug|x64
 		{593058B9-8B0E-47F4-B487-87A08387A8E7}.Release|x64.ActiveCfg = Release|x64
 		{593058B9-8B0E-47F4-B487-87A08387A8E7}.Release|x64.Build.0 = Release|x64
+		{56C73864-AF46-429C-AB19-C7FF366DCBFA}.Debug|x64.ActiveCfg = Debug|x64
+		{56C73864-AF46-429C-AB19-C7FF366DCBFA}.Debug|x64.Build.0 = Debug|x64
+		{56C73864-AF46-429C-AB19-C7FF366DCBFA}.Release|x64.ActiveCfg = Release|x64
+		{56C73864-AF46-429C-AB19-C7FF366DCBFA}.Release|x64.Build.0 = Release|x64
+		{5A4D1EB5-603D-4B4D-90F9-88B7E6F74C15}.Debug|x64.ActiveCfg = Debug|x64
+		{5A4D1EB5-603D-4B4D-90F9-88B7E6F74C15}.Debug|x64.Build.0 = Debug|x64
+		{5A4D1EB5-603D-4B4D-90F9-88B7E6F74C15}.Release|x64.ActiveCfg = Release|x64
+		{5A4D1EB5-603D-4B4D-90F9-88B7E6F74C15}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
