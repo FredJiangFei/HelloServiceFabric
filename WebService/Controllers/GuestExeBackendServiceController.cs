@@ -1,41 +1,36 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
-// ------------------------------------------------------------
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Fabric;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace WebService.Controllers
 {
-    using Microsoft.AspNetCore.Mvc;
-    using System;
-    using System.Fabric;
-    using System.Net.Http;
-    using System.Threading.Tasks;
 
     [Route("api/[controller]")]
     public class GuestExeBackendServiceController : Controller
     {
-        private readonly HttpClient httpClient;
-        private readonly StatelessServiceContext serviceContext;
-        private readonly ConfigSettings configSettings;
-        private readonly FabricClient fabricClient;
+        private readonly HttpClient _httpClient;
+        private readonly StatelessServiceContext _serviceContext;
+        private readonly ConfigSettings _configSettings;
 
-        public GuestExeBackendServiceController(StatelessServiceContext serviceContext, HttpClient httpClient, FabricClient fabricClient, ConfigSettings settings)
+        public GuestExeBackendServiceController(StatelessServiceContext serviceContext, 
+            HttpClient httpClient, 
+            ConfigSettings settings)
         {
-            this.serviceContext = serviceContext;
-            this.httpClient = httpClient;
-            this.configSettings = settings;
-            this.fabricClient = fabricClient;
+            this._serviceContext = serviceContext;
+            this._httpClient = httpClient;
+            this._configSettings = settings;
         }
 
-        // GET: api/values
         [HttpGet]
         public async Task<IActionResult> GetAsync()
         {
-            string serviceUri = $"{this.serviceContext.CodePackageActivationContext.ApplicationName}/{this.configSettings.GuestExeBackendServiceName}".Replace("fabric:/", "");
+            var serviceUri = $"{this._serviceContext.CodePackageActivationContext.ApplicationName}/{this._configSettings.GuestExeBackendServiceName}".Replace("fabric:/", "");
 
-            string proxyUrl = $"http://localhost:{this.configSettings.ReverseProxyPort}/{serviceUri}?cmd=instance";
+            var proxyUrl = $"http://localhost:{this._configSettings.ReverseProxyPort}/{serviceUri}?cmd=instance";
 
-            HttpResponseMessage response = await this.httpClient.GetAsync(proxyUrl);
+            var response = await this._httpClient.GetAsync(proxyUrl);
 
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
@@ -46,7 +41,6 @@ namespace WebService.Controllers
         }
 
 
-        // GET api/values/5
         [HttpGet("{id}")]
         public string Get(int id)
         {
@@ -54,7 +48,6 @@ namespace WebService.Controllers
         }
 
 
-        // DELETE api/values/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {

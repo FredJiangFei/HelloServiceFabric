@@ -1,15 +1,10 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
-// ------------------------------------------------------------
+﻿using System;
+using System.Diagnostics.Tracing;
+using System.Threading.Tasks;
+using Microsoft.ServiceFabric.Actors.Runtime;
 
 namespace ActorBackendService
 {
-    using System;
-    using System.Diagnostics.Tracing;
-    using System.Threading.Tasks;
-    using Microsoft.ServiceFabric.Actors.Runtime;
-
     [EventSource(Name = "MyCompany-GettingStartedApplication-ActorBackendService")]
     internal sealed class ActorEventSource : EventSource
     {
@@ -17,12 +12,9 @@ namespace ActorBackendService
 
         static ActorEventSource()
         {
-            // A workaround for the problem where ETW activities do not get tracked until Tasks infrastructure is initialized.
-            // This problem will be fixed in .NET Framework 4.6.2.
             Task.Run(() => { });
         }
 
-        // Instance constructor is private to enforce singleton semantics
         private ActorEventSource() : base()
         {
         }

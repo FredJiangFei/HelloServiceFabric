@@ -1,51 +1,49 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
-// ------------------------------------------------------------
+﻿using System;
+using System.Collections.Generic;
+using System.Fabric;
+using System.Threading;
+using System.Threading.Tasks;
+using global::StatefulBackendService.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.ServiceFabric.Data;
+using Microsoft.ServiceFabric.Data.Collections;
 
 namespace StatefulBackendService.Controllers
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Fabric;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using global::StatefulBackendService.ViewModels;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.ServiceFabric.Data;
-    using Microsoft.ServiceFabric.Data.Collections;
-
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
         private static readonly Uri ValuesDictionaryName = new Uri("store:/values");
 
-        private readonly IReliableStateManager stateManager;
+        private readonly IReliableStateManager _stateManager;
 
         public ValuesController(IReliableStateManager stateManager)
         {
-            this.stateManager = stateManager;
+            this._stateManager = stateManager;
         }
 
-        // GET api/values
+        private ContentResult Exception_503()
+        {
+            return new ContentResult { StatusCode = 503, Content = "The service was unable to process the request. Please try again." };
+        }
+
         [HttpGet]
         public async Task<IActionResult> Get()
         {
             try
             {
-                List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
+                var result = new List<KeyValuePair<string, string>>();
 
-                ConditionalValue<IReliableDictionary<string, string>> tryGetResult =
-                    await this.stateManager.TryGetAsync<IReliableDictionary<string, string>>(ValuesDictionaryName);
+                var tryGetResult =
+                    await this._stateManager.TryGetAsync<IReliableDictionary<string, string>>(ValuesDictionaryName);
 
                 if (tryGetResult.HasValue)
                 {
-                    IReliableDictionary<string, string> dictionary = tryGetResult.Value;
-
-                    using (ITransaction tx = this.stateManager.CreateTransaction())
+                    var dictionary = tryGetResult.Value;
+                    using (var tx = this._stateManager.CreateTransaction())
                     {
-                        IAsyncEnumerable<KeyValuePair<string, string>> enumerable = await dictionary.CreateEnumerableAsync(tx);
-                        IAsyncEnumerator<KeyValuePair<string, string>> enumerator = enumerable.GetAsyncEnumerator();
+                        var enumerable = await dictionary.CreateEnumerableAsync(tx);
+                        var enumerator = enumerable.GetAsyncEnumerator();
 
                         while (await enumerator.MoveNextAsync(CancellationToken.None))
                         {
@@ -57,23 +55,21 @@ namespace StatefulBackendService.Controllers
             }
             catch (FabricException)
             {
-                return new ContentResult {StatusCode = 503, Content = "The service was unable to process the request. Please try again."};
+                return Exception_503();
             }
         }
 
-        // GET api/values/name
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(string name)
         {
             try
             {
-                IReliableDictionary<string, string> dictionary =
-                    await this.stateManager.GetOrAddAsync<IReliableDictionary<string, string>>(ValuesDictionaryName);
+                var dictionary =
+                    await this._stateManager.GetOrAddAsync<IReliableDictionary<string, string>>(ValuesDictionaryName);
 
-                using (ITransaction tx = this.stateManager.CreateTransaction())
+                using (var tx = this._stateManager.CreateTransaction())
                 {
-                    ConditionalValue<string> result = await dictionary.TryGetValueAsync(tx, name);
-
+                    var result = await dictionary.TryGetValueAsync(tx, name);
                     if (result.HasValue)
                     {
                         return this.Ok(result.Value);
@@ -88,20 +84,19 @@ namespace StatefulBackendService.Controllers
             }
             catch (FabricException)
             {
-                return new ContentResult {StatusCode = 503, Content = "The service was unable to process the request. Please try again."};
+                return Exception_503();
             }
         }
 
-        // POST api/values/name
         [HttpPost("{name}")]
         public async Task<IActionResult> Post(string name, [FromBody] ValueViewModel value)
         {
             try
             {
-                IReliableDictionary<string, string> dictionary =
-                    await this.stateManager.GetOrAddAsync<IReliableDictionary<string, string>>(ValuesDictionaryName);
+                var dictionary =
+                    await this._stateManager.GetOrAddAsync<IReliableDictionary<string, string>>(ValuesDictionaryName);
 
-                using (ITransaction tx = this.stateManager.CreateTransaction())
+                using (var tx = this._stateManager.CreateTransaction())
                 {
                     await dictionary.SetAsync(tx, name, value.Value);
                     await tx.CommitAsync();
@@ -115,7 +110,7 @@ namespace StatefulBackendService.Controllers
             }
             catch (FabricException)
             {
-                return new ContentResult {StatusCode = 503, Content = "The service was unable to process the request. Please try again."};
+                return Exception_503();
             }
         }
 
@@ -125,10 +120,10 @@ namespace StatefulBackendService.Controllers
         {
             try
             {
-                IReliableDictionary<string, string> dictionary =
-                    await this.stateManager.GetOrAddAsync<IReliableDictionary<string, string>>(ValuesDictionaryName);
+                var dictionary =
+                    await this._stateManager.GetOrAddAsync<IReliableDictionary<string, string>>(ValuesDictionaryName);
 
-                using (ITransaction tx = this.stateManager.CreateTransaction())
+                using (ITransaction tx = this._stateManager.CreateTransaction())
                 {
                     await dictionary.AddAsync(tx, name, value.Value);
                     await tx.CommitAsync();
@@ -144,24 +139,23 @@ namespace StatefulBackendService.Controllers
             }
             catch (FabricException)
             {
-                return new ContentResult {StatusCode = 503, Content = "The service was unable to process the request. Please try again."};
+                return Exception_503();
             }
 
             return this.Ok();
         }
 
-        // DELETE api/valuesname
         [HttpDelete("{name}")]
         public async Task<IActionResult> Delete(string name)
         {
-            IReliableDictionary<string, string> dictionary =
-                await this.stateManager.GetOrAddAsync<IReliableDictionary<string, string>>(ValuesDictionaryName);
+            var dictionary =
+                await this._stateManager.GetOrAddAsync<IReliableDictionary<string, string>>(ValuesDictionaryName);
 
             try
             {
-                using (ITransaction tx = this.stateManager.CreateTransaction())
+                using (var tx = this._stateManager.CreateTransaction())
                 {
-                    ConditionalValue<string> result = await dictionary.TryRemoveAsync(tx, name);
+                    var result = await dictionary.TryRemoveAsync(tx, name);
 
                     await tx.CommitAsync();
 
@@ -175,7 +169,7 @@ namespace StatefulBackendService.Controllers
             }
             catch (FabricNotPrimaryException)
             {
-                return new ContentResult {StatusCode = 503, Content = "The primary replica has moved. Please re-resolve the service."};
+                return Exception_503();
             }
         }
     }
