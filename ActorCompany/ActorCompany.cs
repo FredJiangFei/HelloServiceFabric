@@ -3,9 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
-using ActorCompany.Interfaces.Commands;
 using ActorCompany.Interfaces.ViewModels;
 using System;
+using ActorCompany.Commands;
 
 namespace ActorCompany
 {
@@ -17,20 +17,19 @@ namespace ActorCompany
         {
         }
 
-        protected override Task OnActivateAsync()
-        {
-            ActorEventSource.Current.ActorMessage(this, "Actor activated.");
-            return this.StateManager.TryAddStateAsync("count", 0);
-        }
-
         public Task<List<CompaniesViewModel>> GetCompaniesAsync(CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task CreateCompanyAsync(CompanyCreateCommand command, CancellationToken cancellationToken)
+        public async Task CreateCompanyAsync(CompanyCreateCommand command, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            //var added = await this.StateManager.TryAddStateAsync<CompanyCreateCommand>(command, 0, cancellationToken);
+
+            //if (!added)
+            //{
+            //    throw new InvalidOperationException("Processing for this actor has already started.");
+            //}
         }
     }
 }

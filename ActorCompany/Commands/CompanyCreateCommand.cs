@@ -1,4 +1,4 @@
-﻿namespace ActorCompany.Interfaces.Commands
+﻿namespace ActorCompany.Commands
 {
     public class CompanyCreateCommand
     {

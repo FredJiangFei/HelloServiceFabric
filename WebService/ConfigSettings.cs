@@ -16,6 +16,7 @@
         public string StatefulBackendServiceName { get; private set; }
 
         public string StatelessBackendServiceName { get; private set; }
+        public string ActorCompanyName { get; private set; }
 
         public string ActorBackendServiceName { get; private set; }
 
@@ -34,6 +35,7 @@
             this.StatefulBackendServiceName = section.Parameters["StatefulBackendServiceName"].Value;
             this.StatelessBackendServiceName = section.Parameters["StatelessBackendServiceName"].Value;
             this.ActorBackendServiceName = section.Parameters["ActorBackendServiceName"].Value;
+            this.ActorCompanyName = section.Parameters["ActorCompanyName"].Value;
             this.ReverseProxyPort = int.Parse(section.Parameters["ReverseProxyPort"].Value);
         }
     }

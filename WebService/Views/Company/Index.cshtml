@@ -1,0 +1,24 @@
+﻿@model WebService.Commands.CompanyCommand
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+@using (Html.BeginForm("Create","Company"))
+{
+    <fieldset>
+        <legend>Company</legend>
+        <div>
+            @Html.LabelFor(model => model.Name)
+            @Html.TextBoxFor(model => model.Name)   
+        </div>  
+        <div>
+            @Html.LabelFor(model => model.Address)
+            @Html.TextBoxFor(model => model.Address) 
+        </div>
+        <div>
+            <input type="submit" value="Create"/>
+        </div>
+    </fieldset>
+}
