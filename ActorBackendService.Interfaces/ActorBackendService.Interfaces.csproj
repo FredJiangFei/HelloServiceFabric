@@ -79,6 +79,7 @@
     <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ICompanyActor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IMyActor.cs" />
   </ItemGroup>

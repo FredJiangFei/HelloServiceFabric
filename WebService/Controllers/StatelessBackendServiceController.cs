@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Services.Remoting.Client;
-using StatelessBackendService.Interfaces;
 using System.Fabric;
 using System;
+using StatelessBackendService.Interfaces;
 
 namespace WebService.Controllers
 {

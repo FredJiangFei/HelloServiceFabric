@@ -14,8 +14,8 @@
     <None Update="wwwroot\**\*;Views\**\*;Areas\**\Views">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
-    <ProjectReference Include="..\ActorBackendService.Interfaces\ActorBackendService.Interfaces.csproj" />
-    <ProjectReference Include="..\StatelessBackendService.Interfaces\StatelessBackendService.Interfaces.csproj" />
+    <ProjectReference Include="..\ActorBackendService\ActorBackendService.csproj" />
+    <ProjectReference Include="..\StatelessBackendService\StatelessBackendService.csproj" />
   </ItemGroup>
 
   <ItemGroup>

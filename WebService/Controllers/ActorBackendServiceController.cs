@@ -1,5 +1,4 @@
-﻿using ActorBackendService.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Actors.Query;
@@ -8,6 +7,7 @@ using System.Fabric;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ActorBackendService.Interfaces;
 
 namespace WebService.Controllers
 {
