@@ -79,8 +79,10 @@
     <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CompanyCreateCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IActorCompany.cs" />
+    <Compile Include="ViewModels\CompaniesViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

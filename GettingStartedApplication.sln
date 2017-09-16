@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActorBackendService", "Acto
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StatefulBackendService", "StatefulBackendService\StatefulBackendService.csproj", "{8CD4EAA3-0100-4504-91C4-2EC486BCF953}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActorCompany", "ActorCompany\ActorCompany.csproj", "{55E0D26E-513D-46E4-9613-0AA6140D4184}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActorCompany.Interfaces", "ActorCompany.Interfaces\ActorCompany.Interfaces.csproj", "{CBE63983-3DC0-4257-987F-2911C2ED2958}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +45,14 @@ Global
 		{8CD4EAA3-0100-4504-91C4-2EC486BCF953}.Debug|x64.Build.0 = Debug|Any CPU
 		{8CD4EAA3-0100-4504-91C4-2EC486BCF953}.Release|x64.ActiveCfg = Release|Any CPU
 		{8CD4EAA3-0100-4504-91C4-2EC486BCF953}.Release|x64.Build.0 = Release|Any CPU
+		{55E0D26E-513D-46E4-9613-0AA6140D4184}.Debug|x64.ActiveCfg = Debug|x64
+		{55E0D26E-513D-46E4-9613-0AA6140D4184}.Debug|x64.Build.0 = Debug|x64
+		{55E0D26E-513D-46E4-9613-0AA6140D4184}.Release|x64.ActiveCfg = Release|x64
+		{55E0D26E-513D-46E4-9613-0AA6140D4184}.Release|x64.Build.0 = Release|x64
+		{CBE63983-3DC0-4257-987F-2911C2ED2958}.Debug|x64.ActiveCfg = Debug|x64
+		{CBE63983-3DC0-4257-987F-2911C2ED2958}.Debug|x64.Build.0 = Debug|x64
+		{CBE63983-3DC0-4257-987F-2911C2ED2958}.Release|x64.ActiveCfg = Release|x64
+		{CBE63983-3DC0-4257-987F-2911C2ED2958}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
