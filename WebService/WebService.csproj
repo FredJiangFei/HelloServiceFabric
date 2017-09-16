@@ -15,6 +15,7 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
     <ProjectReference Include="..\ActorBackendService\ActorBackendService.csproj" />
+    <ProjectReference Include="..\ActorCompany\ActorCompany.csproj" />
     <ProjectReference Include="..\StatelessBackendService\StatelessBackendService.csproj" />
   </ItemGroup>
 
