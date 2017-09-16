@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
-using ActorCompany.Interfaces;
 using ActorCompany.Interfaces.Commands;
 using ActorCompany.Interfaces.ViewModels;
 using System;

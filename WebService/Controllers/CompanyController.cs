@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Fabric;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Fabric;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.ServiceFabric.Actors.Client;
-using Microsoft.ServiceFabric.Actors.Query;
-using WebService.ViewModel;
 
 namespace WebService.Controllers
 {
@@ -23,35 +15,6 @@ namespace WebService.Controllers
             _serviceContext = serviceContext;
             _configSettings = configSettings;
             _fabricClient = fabricClient;
-        }
-
-        [HttpGet]
-        public async Task<List<CompaniesViewModel>> GetCompanies()
-        {
-            var serviceUri = this._serviceContext.CodePackageActivationContext.ApplicationName + "/" +
-                this._configSettings.ActorBackendServiceName;
-            var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(serviceUri));
-
-            foreach (var p in partitions)
-            {
-                var partitionKey = ((Int64RangePartitionInformation)p.PartitionInformation).LowKey;
-                var proxy = ActorServiceProxy.Create(new Uri(serviceUri), partitionKey);
-
-                ContinuationToken token = null;
-                do
-                {
-                    var page = await proxy.GetActorsAsync(token, CancellationToken.None);
-
-
-                    token = page.ContinuationToken;
-                }
-                while (token != null);
-            }
-
-            return new List<CompaniesViewModel>
-            {
-              
-            };
         }
     }
 }
