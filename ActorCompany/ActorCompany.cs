@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
@@ -17,19 +16,26 @@ namespace ActorCompany
         {
         }
 
-        public Task<List<CompaniesViewModel>> GetCompaniesAsync(CancellationToken cancellationToken)
+        public async Task<CompanyCreateCommand> GetAll(CancellationToken token)
         {
-            throw new NotImplementedException();
+            var result = await StateManager.TryGetStateAsync<CompanyCreateCommand>("Company", token);
+            return result.Value;
         }
 
-        public async Task CreateCompanyAsync(CompanyCreateCommand command, CancellationToken cancellationToken)
+        public Task Create(CompanyCreateCommand command, CancellationToken token)
         {
-            //var added = await this.StateManager.TryAddStateAsync<CompanyCreateCommand>(command, 0, cancellationToken);
+            return StateManager.TryAddStateAsync<CompanyCreateCommand>("Company", command, token);
 
-            //if (!added)
-            //{
-            //    throw new InvalidOperationException("Processing for this actor has already started.");
-            //}
+        }
+
+        public Task Update(CompanyCreateCommand command, CancellationToken token)
+        {
+            return StateManager.SetStateAsync<CompanyCreateCommand>("Company", command, token);
+        }
+
+        public Task Remove()
+        {
+            return StateManager.RemoveStateAsync("Company");
         }
     }
 }

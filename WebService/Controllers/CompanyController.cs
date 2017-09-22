@@ -1,16 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Fabric;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ActorBackendService.Interfaces;
 using ActorCompany;
 using ActorCompany.Commands;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Actors.Query;
-using WebService.Commands;
 
 namespace WebService.Controllers
 {
@@ -20,7 +19,9 @@ namespace WebService.Controllers
         private readonly ConfigSettings _configSettings;
         private readonly FabricClient _fabricClient;
 
-        public CompanyController(StatelessServiceContext serviceContext, ConfigSettings configSettings, FabricClient fabricClient)
+        public CompanyController(StatelessServiceContext serviceContext, 
+            ConfigSettings configSettings, 
+            FabricClient fabricClient)
         {
             _serviceContext = serviceContext;
             _configSettings = configSettings;
@@ -31,21 +32,22 @@ namespace WebService.Controllers
         {
             var serviceUri = GetServiceUri();
             var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(serviceUri));
+            var activeActors = new List<ActorInformation>();
 
             foreach (var p in partitions)
             {
                 var partitionKey = ((Int64RangePartitionInformation)p.PartitionInformation).LowKey;
                 var proxy = ActorServiceProxy.Create(new Uri(serviceUri), partitionKey);
-
-                ContinuationToken token = null;
+                ContinuationToken continuationToken = null;
 
                 do
                 {
-                    var page = await proxy.GetActorsAsync(token, CancellationToken.None);
+                    var page = await proxy.GetActorsAsync(continuationToken, CancellationToken.None);
+                    activeActors.AddRange(page.Items.Where(x => x.IsActive));
 
-                    token = page.ContinuationToken;
+                    continuationToken = page.ContinuationToken;
                 }
-                while (token != null);
+                while (continuationToken != null);
             }
 
             return View();
@@ -55,10 +57,25 @@ namespace WebService.Controllers
         public async Task<ActionResult> Create(CompanyCreateCommand command)
         {
             var serviceUri = GetServiceUri();
-            var proxy = ActorProxy.Create<IActorCompany>(ActorId.CreateRandom(), new Uri(serviceUri));
-            await proxy.CreateCompanyAsync(command,CancellationToken.None);
+            var id = ActorId.CreateRandom();
+
+            var proxy = ActorProxy.Create<IActorCompany>(id, new Uri(serviceUri));
+            await proxy.Create(command,CancellationToken.None);
             return View("Index");
         }
+
+        [HttpDelete]
+        public async Task<ActionResult> Delete(long id)
+        {
+            var serviceUri = GetServiceUri();
+            var actorToDelete = new ActorId(id);
+
+            var proxy = ActorServiceProxy.Create(new Uri(serviceUri), actorToDelete);
+            await proxy.DeleteActorAsync(actorToDelete, CancellationToken.None);
+
+            return View("Index");
+        }
+
 
         private string GetServiceUri()
         {

@@ -10,8 +10,9 @@ namespace ActorCompany
         {
             try
             {
-                ActorRuntime.RegisterActorAsync<ActorCompany>(
-                   (context, actorType) => new ActorService(context, actorType)).GetAwaiter().GetResult();
+                var runtime = ActorRuntime.RegisterActorAsync<ActorCompany>(
+                    (context, actorType) => new ActorService(context, actorType));
+                runtime.GetAwaiter().GetResult();
 
                 Thread.Sleep(Timeout.Infinite);
             }

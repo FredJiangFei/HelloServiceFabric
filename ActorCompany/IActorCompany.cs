@@ -9,8 +9,12 @@ namespace ActorCompany
 {
     public interface IActorCompany : IActor
     {
-        Task<List<CompaniesViewModel>> GetCompaniesAsync(CancellationToken cancellationToken);
+        Task<CompanyCreateCommand> GetAll(CancellationToken token);
 
-        Task CreateCompanyAsync(CompanyCreateCommand command, CancellationToken cancellationToken);
+        Task Create(CompanyCreateCommand command, CancellationToken token);
+
+        Task Update(CompanyCreateCommand command, CancellationToken token);
+
+        Task Remove();
     }
 }
