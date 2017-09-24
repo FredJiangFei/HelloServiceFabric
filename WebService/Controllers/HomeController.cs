@@ -28,10 +28,5 @@
         {
             return this.View();
         }
-
-        public IActionResult Company()
-        {
-            return this.View();
-        }
     }
 }

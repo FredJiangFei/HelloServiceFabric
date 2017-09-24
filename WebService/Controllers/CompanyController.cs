@@ -32,22 +32,21 @@ namespace WebService.Controllers
         {
             var serviceUri = GetServiceUri();
             var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(serviceUri));
-            var activeActors = new List<ActorInformation>();
 
             foreach (var p in partitions)
             {
                 var partitionKey = ((Int64RangePartitionInformation)p.PartitionInformation).LowKey;
                 var proxy = ActorServiceProxy.Create(new Uri(serviceUri), partitionKey);
-                ContinuationToken continuationToken = null;
+                ContinuationToken ct = null;
 
                 do
                 {
-                    var page = await proxy.GetActorsAsync(continuationToken, CancellationToken.None);
-                    activeActors.AddRange(page.Items.Where(x => x.IsActive));
+                    var page = await proxy.GetActorsAsync(ct, CancellationToken.None);
+                    var items = page.Items;
 
-                    continuationToken = page.ContinuationToken;
+                    ct = page.ContinuationToken;
                 }
-                while (continuationToken != null);
+                while (ct != null);
             }
 
             return View();
@@ -61,7 +60,7 @@ namespace WebService.Controllers
 
             var proxy = ActorProxy.Create<IActorCompany>(id, new Uri(serviceUri));
             await proxy.Create(command,CancellationToken.None);
-            return View("Index");
+            return this.Json(true);
         }
 
         [HttpDelete]

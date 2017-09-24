@@ -63,8 +63,7 @@ namespace WebService.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAsync()
         {
-           
-            string serviceUri = GetServiceUri();
+            var serviceUri = GetServiceUri();
             var proxy = ActorProxy.Create<IMyActor>(ActorId.CreateRandom(), new Uri(serviceUri));
             await proxy.StartProcessingAsync(CancellationToken.None);
 

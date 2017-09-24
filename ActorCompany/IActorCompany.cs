@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using ActorCompany.Commands;
-using ActorCompany.Interfaces.ViewModels;
 using Microsoft.ServiceFabric.Actors;
 
 namespace ActorCompany

@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using ActorBackendService.Interfaces;
+using ActorCompany.Commands;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 
