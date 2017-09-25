@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
-using ActorCompany.Interfaces.ViewModels;
 using System;
 using ActorCompany.Commands;
 
@@ -16,9 +15,9 @@ namespace ActorCompany
         {
         }
 
-        public Task<CompanyCreateCommand> GetAll(CancellationToken token)
+        public Task<CompanyCreateCommand> GetCompany()
         {
-            var result = StateManager.GetStateAsync<CompanyCreateCommand>("MyCompany", token);
+            var result = StateManager.GetStateAsync<CompanyCreateCommand>("MyCompany");
             return result;
         }
 

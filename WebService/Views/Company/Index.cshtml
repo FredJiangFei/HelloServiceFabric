@@ -1,19 +1,28 @@
-﻿@model ActorCompany.Commands.CompanyCreateCommand
+﻿@model List<ActorCompany.Commands.CompanyCreateCommand>
 
-@using (Html.BeginForm("Create","Company"))
-{
-    <fieldset>
-        <legend>Company</legend>
-        <div>
-            @Html.LabelFor(model => model.Name)
-            @Html.TextBoxFor(model => model.Name)   
-        </div>  
-        <div>
-            @Html.LabelFor(model => model.Address)
-            @Html.TextBoxFor(model => model.Address) 
-        </div>
-        <div>
-            <input type="submit" value="Create"/>
-        </div>
-    </fieldset>
-}
+@Html.ActionLink("Create","Create","Company")
+<table>
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    @foreach (var company in Model)
+    {
+        <tr>
+            <td>@company.Id</td>
+            <td>@company.Name</td>
+            <td>@company.Address</td>
+            <td>
+                @using (Html.BeginForm("Delete", "Company", new { id = company.Id}, FormMethod.Post))
+                {
+                    <button type="submit">Delete</button>
+                }
+            </td>
+        </tr>
+    }
+</table>

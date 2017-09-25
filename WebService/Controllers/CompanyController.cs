@@ -19,8 +19,8 @@ namespace WebService.Controllers
         private readonly ConfigSettings _configSettings;
         private readonly FabricClient _fabricClient;
 
-        public CompanyController(StatelessServiceContext serviceContext, 
-            ConfigSettings configSettings, 
+        public CompanyController(StatelessServiceContext serviceContext,
+            ConfigSettings configSettings,
             FabricClient fabricClient)
         {
             _serviceContext = serviceContext;
@@ -33,6 +33,8 @@ namespace WebService.Controllers
             var serviceUri = GetServiceUri();
             var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(serviceUri));
 
+            List<CompanyCreateCommand> companies = new List<CompanyCreateCommand>();
+
             foreach (var p in partitions)
             {
                 var partitionKey = ((Int64RangePartitionInformation)p.PartitionInformation).LowKey;
@@ -42,13 +44,25 @@ namespace WebService.Controllers
                 do
                 {
                     var page = await proxy.GetActorsAsync(ct, CancellationToken.None);
-                    var items = page.Items;
+                    var items = page.Items.Where(x=>x.IsActive);
+
+                    foreach (var i in items)
+                    {
+                        var pp = ActorProxy.Create<IActorCompany>(i.ActorId, new Uri(serviceUri));
+                        var cp = pp.GetCompany();
+                        companies.Add(cp.Result);
+                    }
 
                     ct = page.ContinuationToken;
                 }
                 while (ct != null);
             }
+            return View(companies);
+        }
 
+        [HttpGet]
+        public ActionResult Create()
+        {
             return View();
         }
 
@@ -59,8 +73,8 @@ namespace WebService.Controllers
             var id = ActorId.CreateRandom();
 
             var proxy = ActorProxy.Create<IActorCompany>(id, new Uri(serviceUri));
-            await proxy.Create(command,CancellationToken.None);
-            return this.Json(true);
+            await proxy.Create(command, CancellationToken.None);
+            return RedirectToAction("Index");
         }
 
         [HttpDelete]
@@ -72,7 +86,7 @@ namespace WebService.Controllers
             var proxy = ActorServiceProxy.Create(new Uri(serviceUri), actorToDelete);
             await proxy.DeleteActorAsync(actorToDelete, CancellationToken.None);
 
-            return View("Index");
+            return RedirectToAction("Index");
         }
 
 

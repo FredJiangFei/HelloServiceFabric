@@ -7,7 +7,7 @@ namespace ActorCompany
 {
     public interface IActorCompany : IActor
     {
-        Task<CompanyCreateCommand> GetAll(CancellationToken token);
+        Task<CompanyCreateCommand> GetCompany();
 
         Task Create(CompanyCreateCommand command, CancellationToken token);
 

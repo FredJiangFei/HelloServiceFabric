@@ -11,7 +11,7 @@
     <Parameter Name="WebService_StatefulBackendServiceName" DefaultValue="StatefulBackendService" />
     <Parameter Name="WebService_StatelessBackendServiceName" DefaultValue="StatelessBackendService" />
     <Parameter Name="WebService_ActorBackendServiceName" DefaultValue="MyActorService" />
-    <Parameter Name="WebService_ActorCompanyName" DefaultValue="MyActorService" />
+    <Parameter Name="WebService_ActorCompanyName" DefaultValue="ActorCompanyActorService" />
     <Parameter Name="WebService_ReverseProxyPort" DefaultValue="19081" />
     <Parameter Name="MyActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="MyActorService_MinReplicaSetSize" DefaultValue="3" />
