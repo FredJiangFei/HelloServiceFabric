@@ -33,7 +33,7 @@ namespace WebService.Controllers
             var serviceUri = GetServiceUri();
             var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(serviceUri));
 
-            List<CompanyCreateCommand> companies = new List<CompanyCreateCommand>();
+            var companies = new List<CompanyCreateCommand>();
 
             foreach (var p in partitions)
             {
@@ -50,7 +50,12 @@ namespace WebService.Controllers
                     {
                         var pp = ActorProxy.Create<IActorCompany>(i.ActorId, new Uri(serviceUri));
                         var cp = pp.GetCompany();
-                        companies.Add(cp.Result);
+                        companies.Add(new CompanyCreateCommand
+                        {
+                            Id = i.ActorId.GetLongId(),
+                            Name = cp.Result.Name,
+                            Address = cp.Result.Address                        
+                        });
                     }
 
                     ct = page.ContinuationToken;
@@ -77,7 +82,30 @@ namespace WebService.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpDelete]
+        [HttpGet]
+        public ActionResult Edit(long id)
+        {
+            var serviceUri = GetServiceUri();
+            var pp = ActorProxy.Create<IActorCompany>(new ActorId(id), new Uri(serviceUri));
+            var cp = pp.GetCompany();
+            return View(new CompanyCreateCommand
+            {
+                Id = id,
+                Name = cp.Result.Name,
+                Address = cp.Result.Address
+            });
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Edit(CompanyCreateCommand command)
+        {
+            var serviceUri = GetServiceUri();
+            var proxy = ActorProxy.Create<IActorCompany>(new ActorId(command.Id), new Uri(serviceUri));
+            await proxy.Update(command, CancellationToken.None);
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
         public async Task<ActionResult> Delete(long id)
         {
             var serviceUri = GetServiceUri();

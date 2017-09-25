@@ -1,0 +1,22 @@
+﻿@model ActorCompany.Commands.CompanyCreateCommand
+@using (Html.BeginForm("Edit", "Company"))
+{
+    <fieldset>
+        <legend>Company</legend>
+        <div>
+            @Html.LabelFor(model => model.Name)
+            @Html.TextBoxFor(model => model.Name)
+        </div>
+        <div>
+            @Html.LabelFor(model => model.Address)
+            @Html.TextBoxFor(model => model.Address)
+        </div>
+        
+        <div>
+            @Html.HiddenFor(model => model.Id)
+        </div>
+        <div>
+            <input type="submit" value="Edit" />
+        </div>
+    </fieldset>
+}

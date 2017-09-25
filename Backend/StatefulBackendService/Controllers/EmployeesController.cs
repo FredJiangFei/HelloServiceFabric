@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Fabric;
-using System.Threading;
 using System.Threading.Tasks;
 using global::StatefulBackendService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
