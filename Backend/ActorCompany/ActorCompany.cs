@@ -23,16 +23,16 @@ namespace ActorCompany
 
         public async Task Create(CompanyCreateCommand command, CancellationToken token)
         {
-            var added = await this.StateManager.TryAddStateAsync<CompanyCreateCommand>("MyCompany", command, token);
+            var added = await StateManager.TryAddStateAsync<CompanyCreateCommand>("MyCompany", command, token);
             if (!added)
             {
                 throw new InvalidOperationException("Processing for this actor has already started.");
             }
         }
 
-        public Task Update(CompanyCreateCommand command, CancellationToken token)
+        public async Task Update(CompanyCreateCommand command, CancellationToken token)
         {
-            return StateManager.SetStateAsync<CompanyCreateCommand>("MyCompany", command, token);
+            await StateManager.SetStateAsync<CompanyCreateCommand>("MyCompany", command, token);
         }
 
         public Task Remove()
