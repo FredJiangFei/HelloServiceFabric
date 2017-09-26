@@ -15,15 +15,17 @@ namespace ActorCompany
         {
         }
 
+        private string stateName = "Company";
+
         public Task<CompanyCreateCommand> GetCompany()
         {
-            var result = StateManager.GetStateAsync<CompanyCreateCommand>("MyCompany");
+            var result = StateManager.GetStateAsync<CompanyCreateCommand>(stateName);
             return result;
         }
 
         public async Task Create(CompanyCreateCommand command, CancellationToken token)
         {
-            var added = await StateManager.TryAddStateAsync<CompanyCreateCommand>("MyCompany", command, token);
+            var added = await StateManager.TryAddStateAsync<CompanyCreateCommand>(stateName, command, token);
             if (!added)
             {
                 throw new InvalidOperationException("Processing for this actor has already started.");
@@ -32,12 +34,15 @@ namespace ActorCompany
 
         public async Task Update(CompanyCreateCommand command, CancellationToken token)
         {
-            await StateManager.SetStateAsync<CompanyCreateCommand>("MyCompany", command, token);
+            var state = await StateManager.GetStateAsync<CompanyCreateCommand>(stateName, token);
+            state.Name = command.Name;
+            state.Address = command.Address;
+            await StateManager.AddOrUpdateStateAsync(stateName, state, (s, actorState) => state, token);
         }
 
         public Task Remove()
         {
-            return StateManager.RemoveStateAsync("MyCompany");
+            return StateManager.RemoveStateAsync(stateName);
         }
     }
 }
