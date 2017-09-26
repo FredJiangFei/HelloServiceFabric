@@ -31,7 +31,6 @@
         private void UpdateConfigSettings(ConfigurationSettings settings)
         {
             ConfigurationSection section = settings.Sections["MyConfigSection"];
-            this.GuestExeBackendServiceName = section.Parameters["GuestExeBackendServiceName"].Value;
             this.StatefulBackendServiceName = section.Parameters["StatefulBackendServiceName"].Value;
             this.StatelessBackendServiceName = section.Parameters["StatelessBackendServiceName"].Value;
             this.ActorBackendServiceName = section.Parameters["ActorBackendServiceName"].Value;

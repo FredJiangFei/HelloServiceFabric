@@ -1,0 +1,3 @@
+
+<input class="form-control" [ngModel]="date | date:'shortDate'" (focus)="datepickerOpen=true" readonly>
+<datepicker class="datepicker" *ngIf="datepickerOpen" [(ngModel)] ="date" (selectionDone)="selectionDone($event)"></datepicker>

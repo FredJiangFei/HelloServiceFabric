@@ -1,13 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="GettingStartedApplicationType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
-    <Parameter Name="GuestExeBackendService_InstanceCount" DefaultValue="-1" />
     <Parameter Name="StatefulBackendService_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="StatefulBackendService_PartitionCount" DefaultValue="2" />
     <Parameter Name="StatefulBackendService_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="StatelessBackendService_InstanceCount" DefaultValue="-1" />
     <Parameter Name="WebService_InstanceCount" DefaultValue="-1" />
-    <Parameter Name="WebService_GuestExeBackendServiceName" DefaultValue="GuestExeBackendService" />
     <Parameter Name="WebService_StatefulBackendServiceName" DefaultValue="StatefulBackendService" />
     <Parameter Name="WebService_StatelessBackendServiceName" DefaultValue="StatelessBackendService" />
     <Parameter Name="WebService_ActorBackendServiceName" DefaultValue="MyActorService" />
@@ -24,10 +22,6 @@
     <ServiceManifestRef ServiceManifestName="ActorCompanyPkg" ServiceManifestVersion="1.0.0" />
   </ServiceManifestImport>
   <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="GuestExeBackendServicePkg" ServiceManifestVersion="1.0.0" />
-    <ConfigOverrides />
-  </ServiceManifestImport>
-  <ServiceManifestImport>
     <ServiceManifestRef ServiceManifestName="StatefulBackendServicePkg" ServiceManifestVersion="1.0.0" />
     <ConfigOverrides />
   </ServiceManifestImport>
@@ -41,7 +35,6 @@
       <ConfigOverride Name="Config">
         <Settings>
           <Section Name="MyConfigSection">
-            <Parameter Name="GuestExeBackendServiceName" Value="[WebService_GuestExeBackendServiceName]" />
             <Parameter Name="StatefulBackendServiceName" Value="[WebService_StatefulBackendServiceName]" />
             <Parameter Name="StatelessBackendServiceName" Value="[WebService_StatelessBackendServiceName]" />
             <Parameter Name="ActorBackendServiceName" Value="[WebService_ActorBackendServiceName]" />
@@ -56,11 +49,6 @@
     <ServiceManifestRef ServiceManifestName="ActorBackendServicePkg" ServiceManifestVersion="1.0.0" />
   </ServiceManifestImport>
   <DefaultServices>
-    <Service Name="GuestExeBackendService">
-      <StatelessService ServiceTypeName="GuestExeBackendServiceType" InstanceCount="[GuestExeBackendService_InstanceCount]">
-        <SingletonPartition />
-      </StatelessService>
-    </Service>
     <Service Name="StatefulBackendService">
       <StatefulService ServiceTypeName="StatefulBackendServiceType" TargetReplicaSetSize="[StatefulBackendService_TargetReplicaSetSize]" MinReplicaSetSize="[StatefulBackendService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[StatefulBackendService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />

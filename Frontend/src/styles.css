@@ -1,0 +1,30 @@
+/* You can add global styles to this file, and also import other style files */
+.check-label{
+  font-weight:normal;
+  padding-right: 15px;
+  padding-top: 5px;
+}
+
+.spinner-loading{
+  position: absolute;
+  left: 48%;
+}
+
+.alert-container{
+  position: fixed;
+  top: 4em;
+  right: 7em;
+  z-index: 10000;
+}
+
+.list-image{
+  width: 90px;
+  margin-left: 5px;
+  margin-top: 5px;
+}
+
+.datepicker{
+  position: absolute;
+  z-index: 100;
+}
+

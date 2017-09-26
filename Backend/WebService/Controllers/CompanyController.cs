@@ -13,6 +13,8 @@ using Microsoft.ServiceFabric.Actors.Query;
 
 namespace WebService.Controllers
 {
+
+    [Route("api/")]
     public class CompanyController : Controller
     {
         private readonly StatelessServiceContext _serviceContext;
@@ -28,7 +30,9 @@ namespace WebService.Controllers
             _fabricClient = fabricClient;
         }
 
-        public async Task<ActionResult> Index()
+        [Route("companies")]
+        [HttpGet]
+        public async Task<List<CompanyCreateCommand>> Index()
         {
             var serviceUri = GetServiceUri();
             var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(serviceUri));
@@ -62,61 +66,54 @@ namespace WebService.Controllers
                 }
                 while (ct != null);
             }
-            return View(companies);
+            return companies;
         }
 
+        [Route("companies/{id}")]
         [HttpGet]
-        public ActionResult Create()
+        public CompanyCreateCommand GetById(long id)
         {
-            return View();
+            var serviceUri = GetServiceUri();
+            var pp = ActorProxy.Create<IActorCompany>(new ActorId(id), new Uri(serviceUri));
+            var cp = pp.GetCompany();
+            return new CompanyCreateCommand
+            {
+                Id = id,
+                Name = cp.Result.Name,
+                Address = cp.Result.Address
+            };
         }
 
+        [Route("companies")]
         [HttpPost]
-        public async Task<ActionResult> Create(CompanyCreateCommand command)
+        public async Task Create([FromBody]CompanyCreateCommand command)
         {
             var serviceUri = GetServiceUri();
             var id = ActorId.CreateRandom();
 
             var proxy = ActorProxy.Create<IActorCompany>(id, new Uri(serviceUri));
             await proxy.Create(command, CancellationToken.None);
-            return RedirectToAction("Index");
         }
 
-        [HttpGet]
-        public ActionResult Edit(long id)
-        {
-            var serviceUri = GetServiceUri();
-            var pp = ActorProxy.Create<IActorCompany>(new ActorId(id), new Uri(serviceUri));
-            var cp = pp.GetCompany();
-            return View(new CompanyCreateCommand
-            {
-                Id = id,
-                Name = cp.Result.Name,
-                Address = cp.Result.Address
-            });
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> Edit(CompanyCreateCommand command)
+        [Route("companies")]
+        [HttpPut]
+        public async Task Edit([FromBody]CompanyCreateCommand command)
         {
             var serviceUri = GetServiceUri();
             var proxy = ActorProxy.Create<IActorCompany>(new ActorId(command.Id), new Uri(serviceUri));
             await proxy.Update(command, CancellationToken.None);
-            return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Delete(long id)
+        [Route("companies/{id}")]
+        [HttpDelete]
+        public async Task Delete(long id)
         {
             var serviceUri = GetServiceUri();
             var actorToDelete = new ActorId(id);
 
             var proxy = ActorServiceProxy.Create(new Uri(serviceUri), actorToDelete);
             await proxy.DeleteActorAsync(actorToDelete, CancellationToken.None);
-
-            return RedirectToAction("Index");
         }
-
 
         private string GetServiceUri()
         {

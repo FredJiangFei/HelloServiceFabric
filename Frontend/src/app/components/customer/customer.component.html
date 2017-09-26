@@ -1,0 +1,66 @@
+<div class="row">
+  <h3>Customer management</h3>
+</div>
+
+<spinner class="spinner-loading" *ngIf="isLoading"></spinner>
+
+<div class="row text-right">
+  <button type="button" class="btn btn-primary" (click)="saveModal.displayModal()">Create</button>
+</div>
+
+<div class="row">
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Quote</th>
+      <th>Portrait</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let customer of customers">
+      <td class="col-md-3">{{customer.name}}</td>
+      <td>{{customer.quote}}</td>
+      <td>
+        <img src="{{customer.portrait | imageUrl}}" class="list-image">
+      </td>
+      <td class="col-md-2 text-right">
+        <a type="button" class="btn btn-primary" (click)="saveModal.displayModal(customer)">
+          <i class="glyphicon glyphicon-edit"></i>
+        </a>
+        <a type="button" class="btn btn-danger" (click)="deleteModal.displayModal(customer)">
+          <i class="glyphicon glyphicon-remove"></i>
+        </a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<asw-modal #saveModal [(item)]="currentCustomer" (saveFunc)="saveCustomer()" [buttonDisable]="!customerForm.valid">
+  <span modal-header>Customer</span>
+  <span modal-footer>Save</span>
+
+  <form novalidate #customerForm="ngForm" modal-body>
+    <div class="form-group">
+      <label>Name</label>
+      <input class="form-control" [(ngModel)]="currentCustomer.name" name="name" required/>
+    </div>
+
+    <div class="form-group">
+      <label>Portrait</label>
+      <input type="file" class="form-control" name="single" ng2FileSelect [uploader]="uploader"/>
+    </div>
+  </form>
+</asw-modal>
+
+<asw-modal #deleteModal [(item)]="currentCustomer" (saveFunc)="deleteCustomer()">
+  <span modal-header>Delete customer</span>
+  <span modal-footer>Delete</span>
+  <span modal-body>
+		Are you sure you want delete customer {{currentCustomer?.name}} ?
+	</span>
+</asw-modal>
+
+

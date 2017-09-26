@@ -1,0 +1,58 @@
+<spinner class="spinner-loading" *ngIf="isLoading"></spinner>
+
+<div class="row text-right">
+  <button type="button" class="btn btn-primary"  (click)="saveModal.displayModal()">Create</button>
+</div>
+
+
+<div class="row">
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Address</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let c of companies">
+      <td class="col-md-3">{{c.name}}</td>
+      <td>{{c.address}}</td>
+      <td class="col-md-2 text-right">
+        <a type="button" class="btn btn-primary" (click)="saveModal.displayModal(c)">
+          <i class="glyphicon glyphicon-edit"></i>
+        </a>
+        <a type="button" class="btn btn-danger" (click)="deleteModal.displayModal(c)">
+          <i class="glyphicon glyphicon-remove"></i>
+        </a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<asw-modal #saveModal [(item)]="currentCompany" (saveFunc)="save()" [buttonDisable]="!companyForm.valid">
+  <span modal-header>Company</span>
+  <span modal-footer>Save</span>
+
+  <form novalidate #companyForm="ngForm" modal-body>
+    <div class="form-group">
+      <label>Name</label>
+      <input class="form-control" [(ngModel)]="currentCompany.name" name="name" required/>
+    </div>
+    <div class="form-group">
+      <label>Address</label>
+      <input class="form-control" [(ngModel)]="currentCompany.address" name="address" required/>
+    </div>
+  </form>
+</asw-modal>
+
+<asw-modal #deleteModal [(item)]="currentCompany" (saveFunc)="delete()">
+  <span modal-header>Delete Company</span>
+  <span modal-footer>Delete</span>
+  <span modal-body>
+		Are you sure you want delete company {{currentCompany?.name}} ?
+	</span>
+</asw-modal>
+
+

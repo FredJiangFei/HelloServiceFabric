@@ -1,0 +1,35 @@
+
+<form novalidate #loginForm="ngForm" (submit)="login()">
+  <div class="container login-container">
+    <div class="col-md-8 col-md-offset-2">
+      <div class="form-group text-center">
+        <h2>Agile Software Workshop</h2>
+      </div>
+      <div class="form-group">
+        <label>Email:</label>
+        <input class="form-control" placeholder='Email' pattern="^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$"
+               [(ngModel)]="loginUser.email" name="email" required/>
+      </div>
+      <div class="form-group">
+        <label>Password:</label>
+        <input type="password" class="form-control" pattern="[a-zA-Z0-9_]+" name="password" [(ngModel)]="loginUser.password" required/>
+      </div>
+
+      <div class="form-group">
+        <asw-message></asw-message>
+      </div>
+
+      <div class="form-group">
+        <button class="btn btn-danger btn-block" [disabled]="logining">
+          LOGIN
+          <asw-loading *ngIf="logining"></asw-loading>
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+
+
+

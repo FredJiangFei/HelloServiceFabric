@@ -29,6 +29,15 @@ namespace WebService
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
@@ -45,6 +54,8 @@ namespace WebService
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseCors("CorsPolicy");
 
             app.UseStaticFiles();
 
