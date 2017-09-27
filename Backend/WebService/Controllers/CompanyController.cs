@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ActorCompany;
-using ActorCompany.Commands;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Client;
@@ -32,12 +31,12 @@ namespace WebService.Controllers
 
         [Route("companies")]
         [HttpGet]
-        public async Task<List<CompanyCreateCommand>> Index()
+        public async Task<List<Company>> Index()
         {
             var serviceUri = GetServiceUri();
             var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(serviceUri));
 
-            var companies = new List<CompanyCreateCommand>();
+            var companies = new List<Company>();
 
             foreach (var p in partitions)
             {
@@ -54,7 +53,7 @@ namespace WebService.Controllers
                     {
                         var pp = ActorProxy.Create<IActorCompany>(i.ActorId, new Uri(serviceUri));
                         var cp = pp.GetCompany();
-                        companies.Add(new CompanyCreateCommand
+                        companies.Add(new Company
                         {
                             Id = i.ActorId.GetLongId(),
                             Name = cp.Result.Name,
@@ -71,12 +70,12 @@ namespace WebService.Controllers
 
         [Route("companies/{id}")]
         [HttpGet]
-        public CompanyCreateCommand GetById(long id)
+        public Company GetById(long id)
         {
             var serviceUri = GetServiceUri();
             var pp = ActorProxy.Create<IActorCompany>(new ActorId(id), new Uri(serviceUri));
             var cp = pp.GetCompany();
-            return new CompanyCreateCommand
+            return new Company
             {
                 Id = id,
                 Name = cp.Result.Name,
@@ -86,7 +85,7 @@ namespace WebService.Controllers
 
         [Route("companies")]
         [HttpPost]
-        public async Task Create([FromBody]CompanyCreateCommand command)
+        public async Task Create([FromBody]Company command)
         {
             var serviceUri = GetServiceUri();
             var id = ActorId.CreateRandom();
@@ -97,11 +96,17 @@ namespace WebService.Controllers
 
         [Route("companies")]
         [HttpPut]
-        public async Task Edit([FromBody]CompanyCreateCommand command)
+        public async Task Edit([FromBody]Company command)
         {
             var serviceUri = GetServiceUri();
             var proxy = ActorProxy.Create<IActorCompany>(new ActorId(command.Id), new Uri(serviceUri));
-            await proxy.Update(command, CancellationToken.None);
+
+            var c = new Company
+            {
+                Name = command.Name,
+                Address = command.Address
+            };
+            await proxy.Update(c, CancellationToken.None);
         }
 
         [Route("companies/{id}")]

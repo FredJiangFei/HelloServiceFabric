@@ -1,9 +1,9 @@
 ﻿using System.Runtime.Serialization;
 
-namespace ActorCompany.Commands
+namespace ActorCompany
 {
     [DataContract]
-    public class CompanyCreateCommand
+    public class Company
     {
         [DataMember]
         public long Id { get; set; }

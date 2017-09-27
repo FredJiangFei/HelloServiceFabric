@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using ActorCompany.Commands;
 using Microsoft.ServiceFabric.Actors;
 
 namespace ActorBackendService.Interfaces

@@ -88,7 +88,7 @@
     <Reference Include="System.ServiceModel" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\CompanyCreateCommand.cs" />
+    <Compile Include="Company.cs" />
     <Compile Include="CompanyEventsHandler.cs" />
     <Compile Include="IActorCompany.cs" />
     <Compile Include="ICompanyEvents.cs" />
@@ -96,7 +96,6 @@
     <Compile Include="ActorCompany.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ActorEventSource.cs" />
-    <Compile Include="ViewModels\CompaniesViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="PackageRoot\ServiceManifest.xml" />

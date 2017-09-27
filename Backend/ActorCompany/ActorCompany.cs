@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using System;
-using ActorCompany.Commands;
 
 namespace ActorCompany
 {
@@ -17,25 +16,26 @@ namespace ActorCompany
 
         private string stateName = "Company";
 
-        public Task<CompanyCreateCommand> GetCompany()
+        public Task<Company> GetCompany()
         {
-            var result = StateManager.GetStateAsync<CompanyCreateCommand>(stateName);
+            var result = StateManager.GetStateAsync<Company>(stateName);
             return result;
         }
 
-        public async Task Create(CompanyCreateCommand command, CancellationToken token)
+        public async Task Create(Company command, CancellationToken token)
         {
-            var added = await StateManager.TryAddStateAsync<CompanyCreateCommand>(stateName, command, token);
+            var added = await StateManager.TryAddStateAsync<Company>(stateName, command, token);
             if (!added)
             {
                 throw new InvalidOperationException("Processing for this actor has already started.");
             }
         }
 
-        public async Task Update(CompanyCreateCommand command, CancellationToken token)
+        public async Task Update(Company command, CancellationToken token)
         {
-            await this.StateManager.AddOrUpdateStateAsync(stateName, command, (key, value) => command, token);
-            await this.SaveStateAsync();
+            await StateManager.SetStateAsync(stateName, command, token);
+
+            //await StateManager.AddOrUpdateStateAsync(stateNam/e, command, (key, value) => command, token);
         }
 
         public Task Remove()
