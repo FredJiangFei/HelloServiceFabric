@@ -15,5 +15,10 @@ namespace ActorCompany.Commands
         public string ZipCode { get; set; }
         [DataMember]
         public string Tel { get; set; }
+
+        public void EditName(string name)
+        {
+            Name = name;
+        }
     }
 }

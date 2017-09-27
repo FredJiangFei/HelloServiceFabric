@@ -34,10 +34,8 @@ namespace ActorCompany
 
         public async Task Update(CompanyCreateCommand command, CancellationToken token)
         {
-            var state = await StateManager.GetStateAsync<CompanyCreateCommand>(stateName, token);
-            state.Name = command.Name;
-            state.Address = command.Address;
-            await StateManager.AddOrUpdateStateAsync(stateName, state, (s, actorState) => state, token);
+            await this.StateManager.AddOrUpdateStateAsync(stateName, command, (key, value) => command, token);
+            await this.SaveStateAsync();
         }
 
         public Task Remove()

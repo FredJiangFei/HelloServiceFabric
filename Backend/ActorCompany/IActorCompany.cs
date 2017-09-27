@@ -5,7 +5,7 @@ using Microsoft.ServiceFabric.Actors;
 
 namespace ActorCompany
 {
-    public interface IActorCompany : IActor
+    public interface IActorCompany : IActor //, IActorEventPublisher<ICompanyEvents>
     {
         Task<CompanyCreateCommand> GetCompany();
 
