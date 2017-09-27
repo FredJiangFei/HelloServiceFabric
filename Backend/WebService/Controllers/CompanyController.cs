@@ -35,52 +35,33 @@ namespace WebService.Controllers
         {
             var serviceUri = GetServiceUri();
             var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(serviceUri));
-
-            var companies = new List<Company>();
+            var activeActors = new List<ActorInformation>();
 
             foreach (var p in partitions)
             {
                 var partitionKey = ((Int64RangePartitionInformation)p.PartitionInformation).LowKey;
                 var proxy = ActorServiceProxy.Create(new Uri(serviceUri), partitionKey);
                 ContinuationToken ct = null;
-
+                
                 do
                 {
                     var page = await proxy.GetActorsAsync(ct, CancellationToken.None);
-                    var items = page.Items.Where(x=>x.IsActive);
-
-                    foreach (var i in items)
-                    {
-                        var pp = ActorProxy.Create<IActorCompany>(i.ActorId, new Uri(serviceUri));
-                        var cp = pp.GetCompany();
-                        companies.Add(new Company
-                        {
-                            Id = i.ActorId.GetLongId(),
-                            Name = cp.Result.Name,
-                            Address = cp.Result.Address                        
-                        });
-                    }
-
+                    activeActors.AddRange(page.Items.Where(x => x.IsActive));                   
                     ct = page.ContinuationToken;
                 }
                 while (ct != null);
             }
-            return companies;
+
+            var companies = activeActors.Select(x => ActorProxy.Create<IActorCompany>(x.ActorId, new Uri(serviceUri)).GetCompany(x.ActorId.GetLongId()).Result);
+            return companies.ToList();
         }
 
         [Route("companies/{id}")]
         [HttpGet]
-        public Company GetById(long id)
+        public async Task<Company> GetById(long id)
         {
             var serviceUri = GetServiceUri();
-            var pp = ActorProxy.Create<IActorCompany>(new ActorId(id), new Uri(serviceUri));
-            var cp = pp.GetCompany();
-            return new Company
-            {
-                Id = id,
-                Name = cp.Result.Name,
-                Address = cp.Result.Address
-            };
+            return await ActorProxy.Create<IActorCompany>(new ActorId(id), new Uri(serviceUri)).GetCompany(id);
         }
 
         [Route("companies")]
@@ -100,13 +81,7 @@ namespace WebService.Controllers
         {
             var serviceUri = GetServiceUri();
             var proxy = ActorProxy.Create<IActorCompany>(new ActorId(command.Id), new Uri(serviceUri));
-
-            var c = new Company
-            {
-                Name = command.Name,
-                Address = command.Address
-            };
-            await proxy.Update(c, CancellationToken.None);
+            await proxy.Update(command, CancellationToken.None);
         }
 
         [Route("companies/{id}")]

@@ -16,9 +16,10 @@ namespace ActorCompany
 
         private string stateName = "Company";
 
-        public Task<Company> GetCompany()
+        public Task<Company> GetCompany(long actorId)
         {
             var result = StateManager.GetStateAsync<Company>(stateName);
+            result.Result.Id = actorId;
             return result;
         }
 

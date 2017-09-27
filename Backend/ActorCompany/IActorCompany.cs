@@ -6,7 +6,7 @@ namespace ActorCompany
 {
     public interface IActorCompany : IActor //, IActorEventPublisher<ICompanyEvents>
     {
-        Task<Company> GetCompany();
+        Task<Company> GetCompany(long actorId);
 
         Task Create(Company command, CancellationToken token);
 
