@@ -13,28 +13,33 @@ namespace WebService.Controllers
 {
 
     [Route("api/[controller]")]
-    public class StatefulBackendServiceController : BaseController
+    public class StatefulBackendServiceController:Controller
     {
         private readonly HttpClient _httpClient;
         private readonly ConfigSettings _configSettings;
         private readonly FabricClient _fabricClient;
+        private readonly StatelessServiceContext _serviceContext;
 
-        public StatefulBackendServiceController(StatelessServiceContext serviceContext, 
-                                                HttpClient httpClient, 
+        public StatefulBackendServiceController(HttpClient httpClient, 
                                                 FabricClient fabricClient, 
-                                                ConfigSettings settings) 
-            : base(serviceContext, fabricClient)
+                                                ConfigSettings settings, 
+                                                StatelessServiceContext serviceContext)
         {
-            this._httpClient = httpClient;
-            this._configSettings = settings;
-            this._fabricClient = fabricClient;
+            _httpClient = httpClient;
+            _configSettings = settings;
+            _serviceContext = serviceContext;
+            _fabricClient = fabricClient;
+        }
+
+        private string GetServiceUri()
+        {
+            return _serviceContext.CodePackageActivationContext.ApplicationName + "/" + this._configSettings.StatefulBackendServiceName;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAsync()
         {
-            var serviceName = this._configSettings.StatefulBackendServiceName;
-            var serviceUri = GetAppName() + "/" + serviceName;
+            var serviceUri = GetServiceUri();
             var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(serviceUri));
 
             var result = new List<KeyValuePair<string, string>>();
@@ -63,28 +68,31 @@ namespace WebService.Controllers
             return this.Json(result);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> PutAsync([FromBody] KeyValuePair<string, string> keyValuePair)
+        private StringContent getContent(string val)
         {
-            var serviceName = this._configSettings.StatefulBackendServiceName;
-            var serviceUri = GetAppName().Replace("fabric:/", "") + "/" + serviceName;
-
-            var partition = PartitionKeyNumber(keyValuePair);
-
-            var port = this._configSettings.ReverseProxyPort;
-            var key = keyValuePair.Key;
-            var val = keyValuePair.Value;
-
-            var partitionKey = $"PartitionKey ={partition}";
-            var partitionKind = "PartitionKind=Int64Range";
-            var proxyUrl = $"http://localhost:{port}/{serviceUri}/api/values/{key}?{partitionKind}&{partitionKey}";
-
             var payload = $"{{ 'value' : '{val}' }}";
             var putContent = new StringContent(payload, Encoding.UTF8, "application/json");
             putContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            return putContent;
+        }
 
+        [HttpPut]
+        public async Task<IActionResult> PutAsync([FromBody] KeyValuePair<string, string> keyValuePair)
+        {
+            var serviceUri = GetServiceUri();
+            var partition = PartitionKeyNumber(keyValuePair);
+
+            var port = _configSettings.ReverseProxyPort;
+            var key = keyValuePair.Key;
+            var val = keyValuePair.Value;
+
+            var partitionKey = $"PartitionKey={partition}";
+            var partitionKind = "PartitionKind=Int64Range";
+            var proxyUrl = $"http://localhost:{port}/{serviceUri.Replace("fabric:/", "")}/api/values/{key}?{partitionKind}&{partitionKey}";
+
+            var putContent = getContent(val);
             var response = await this._httpClient.PutAsync(proxyUrl, putContent);
-            return new ContentResult()
+            return new ContentResult
             {
                 StatusCode = (int) response.StatusCode,
                 Content = await response.Content.ReadAsStringAsync()

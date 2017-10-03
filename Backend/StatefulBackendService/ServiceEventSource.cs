@@ -1,9 +1,4 @@
-﻿// ------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All rights reserved.
-//  Licensed under the MIT License (MIT). See License.txt in the repo root for license information.
-// ------------------------------------------------------------
-
-namespace StatefulBackendService
+﻿namespace StatefulBackendService
 {
     using System;
     using System.Diagnostics.Tracing;
@@ -17,12 +12,9 @@ namespace StatefulBackendService
 
         static ServiceEventSource()
         {
-            // A workaround for the problem where ETW activities do not get tracked until Tasks infrastructure is initialized.
-            // This problem will be fixed in .NET Framework 4.6.2.
             Task.Run(() => { });
         }
 
-        // Instance constructor is private to enforce singleton semantics
         private ServiceEventSource() : base()
         {
         }
