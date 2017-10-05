@@ -59,7 +59,7 @@ namespace StatefulBackendService.Controllers
         [HttpDelete("{name}")]
         public async Task<IActionResult> Delete(string name)
         {
-            var votesDictionary = await _stateManager.GetOrAddAsync<IReliableDictionary<string, int>>("counts");
+            var votesDictionary = await _stateManager.GetOrAddAsync<IReliableDictionary<string, int>>("employees");
 
             using (var tx = _stateManager.CreateTransaction())
             {
