@@ -1,11 +1,12 @@
 <div class="row">
-  <input ngModel="employee">
-  <button (click)="addEmployee(employee)">Add</button>
+  <input [(ngModel)]="employee">
+  <button (click)="add(employee)">Add</button>
 </div>
 
 <ul>
   <li *ngFor="let e of employees">
     <span>{{e.name}}</span>
-    <button (click)="addEmployee(e)">Vote</button>
+    <button (click)="add(e)">Vote</button>
+    <button (click)="delete(e)">Delete</button>
   </li>
 </ul>

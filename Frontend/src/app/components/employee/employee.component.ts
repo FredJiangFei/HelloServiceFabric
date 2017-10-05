@@ -4,12 +4,11 @@ import {EmployeeService} from "../../services/employee.service";
 
 @Component({
   selector: 'asw-employee',
-  templateUrl: './employee.component.html',
-  styleUrls: ['./employee.component.css']
+  templateUrl: './employee.component.html'
 })
 export class EmployeeComponent implements OnInit {
-  public employees: Employee[];
-  public employee: Employee;
+  public employees: string[];
+  public employee: string;
 
   constructor(private employeeService: EmployeeService) {
   }
@@ -23,13 +22,13 @@ export class EmployeeComponent implements OnInit {
       .subscribe(employees => this.employees = employees);
   }
 
-  public addEmployee(employee: Employee) {
-    this.employeeService.createEmployee(employee)
+  public add(employee: string) {
+    this.employeeService.updateBy(employee)
       .subscribe(e => this.getEmployees());
   }
 
-  public deleteEmployee(employee: Employee) {
-    this.employeeService.deleteEmployee(employee.name)
+  public delete(employee: string) {
+    this.employeeService.delete(employee)
       .subscribe(e => this.getEmployees());
   }
 }
