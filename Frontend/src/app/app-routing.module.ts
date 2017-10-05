@@ -1,10 +1,10 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-import {CustomerComponent} from './components/customer/customer.component';
 import {HomeComponent} from './components/home/home.component';
 import {LoginGuard} from './guards/login-guard';
 import {LoginComponent} from './components/login/login.component';
 import {CompanyComponent} from './components/company/company.component';
+import {EmployeeComponent} from "./components/employee/employee.component";
 
 const routes: Routes = [
   {
@@ -14,10 +14,9 @@ const routes: Routes = [
     canActivateChild: [LoginGuard],
     children: [
       {
-        path: 'customers', component: CustomerComponent
-      },
-      {
         path: 'companies', component: CompanyComponent
+      },{
+        path: 'employees', component: EmployeeComponent
       }
     ]
   },

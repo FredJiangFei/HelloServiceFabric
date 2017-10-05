@@ -13,7 +13,7 @@ using Microsoft.ServiceFabric.Actors.Query;
 namespace WebService.Controllers
 {
 
-    [Route("api/")]
+    [Route("api/[controller]")]
     public class CompanyController : Controller
     {
         private readonly StatelessServiceContext _serviceContext;
@@ -29,7 +29,6 @@ namespace WebService.Controllers
             _fabricClient = fabricClient;
         }
 
-        [Route("companies")]
         [HttpGet]
         public async Task<List<Company>> Index()
         {
@@ -56,7 +55,7 @@ namespace WebService.Controllers
             return companies.ToList();
         }
 
-        [Route("companies/{id}")]
+        [Route("{id}")]
         [HttpGet]
         public async Task<Company> GetById(long id)
         {
@@ -64,7 +63,6 @@ namespace WebService.Controllers
             return await ActorProxy.Create<IActorCompany>(new ActorId(id), new Uri(serviceUri)).GetCompany(id);
         }
 
-        [Route("companies")]
         [HttpPost]
         public async Task Create([FromBody]Company command)
         {
@@ -75,7 +73,6 @@ namespace WebService.Controllers
             await proxy.Create(command, CancellationToken.None);
         }
 
-        [Route("companies")]
         [HttpPut]
         public async Task Edit([FromBody]Company command)
         {
@@ -84,7 +81,7 @@ namespace WebService.Controllers
             await proxy.Update(command, CancellationToken.None);
         }
 
-        [Route("companies/{id}")]
+        [Route("{id}")]
         [HttpDelete]
         public async Task Delete(long id)
         {

@@ -7,7 +7,7 @@ import {Company} from '../models/company';
 export class CompanyService extends BaseService<Company> {
 
   constructor(public apiService: ApiService) {
-    super(apiService, 'companies');
+    super(apiService, 'company');
   }
 
 }
