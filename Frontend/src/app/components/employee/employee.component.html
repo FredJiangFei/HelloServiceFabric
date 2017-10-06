@@ -1,12 +1,30 @@
 <div class="row">
-  <input [(ngModel)]="employee">
-  <button (click)="add(employee)">Add</button>
+  <input [(ngModel)]="employee.name">
+  <a  class="btn btn-primary" (click)="add(employee)">Add</a>
 </div>
 
-<ul>
-  <li *ngFor="let e of employees">
-    <span>{{e.name}}</span>
-    <button (click)="add(e)">Vote</button>
-    <button (click)="delete(e)">Delete</button>
-  </li>
-</ul>
+<div class="row">
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Vote</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let e of employees">
+      <td>{{e.name}}</td>
+      <td>{{e.vote}}</td>
+      <td class="col-md-2 text-right">
+        <a type="button" class="btn btn-primary" (click)="add(e)">
+          Vote
+        </a>
+        <a type="button" class="btn btn-danger" (click)="delete(e)">
+          <i class="glyphicon glyphicon-remove"></i>
+        </a>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

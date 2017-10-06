@@ -23,10 +23,6 @@ export class BaseService<T> {
     return this.apiService.put(this.url, item);
   }
 
-  updateBy(item: T): Observable<T> {
-    return this.apiService.put(`${this.url}/${item}`,'');
-  }
-
   delete(id: string): Observable<T> {
     return this.apiService.delete(`${this.url}/${id}`);
   }

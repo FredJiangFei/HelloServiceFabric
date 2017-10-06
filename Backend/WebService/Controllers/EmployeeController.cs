@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Fabric;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using WebService.ViewModel;
 
 namespace WebService.Controllers
 {
@@ -28,9 +30,10 @@ namespace WebService.Controllers
         }
         private string GetServiceUri()
         {
-            return _serviceContext.CodePackageActivationContext.ApplicationName +
-                "/" + this._configSettings.StatefulBackendServiceName +
-                "/api/Employee";
+            var url = _serviceContext.CodePackageActivationContext.ApplicationName +
+                "/" + _configSettings.StatefulBackendServiceName;
+            var port = _configSettings.ReverseProxyPort;
+            return $"http://localhost:{port}/{url.Replace("fabric:/", "")}/api/Employee";
         }
 
         // GET: api/Employee
@@ -42,20 +45,26 @@ namespace WebService.Controllers
 
             if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                return this.StatusCode((int)response.StatusCode);
+                return StatusCode((int)response.StatusCode);
             }
 
             var votes = JsonConvert.DeserializeObject<List<KeyValuePair<string, int>>>(await response.Content.ReadAsStringAsync());
-            return Json(votes);
+
+            var employees = votes.Select(x => new Employee
+                {
+                    Name = x.Key,
+                    Vote = x.Value
+                });
+
+            return Json(employees);
         }
 
-        // PUT: api/Employee/name
-        [HttpPut("{name}")]
-        public async Task<IActionResult> Put(string name)
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody]Employee employee)
         {
-            var putContent = StringContent(name);
+            var putContent = StringContent(employee.Name);
             var url = GetServiceUri();
-            var proxyUrl = $"{url}/{name}?PartitionKind={partitionKind}&PartitionKey={partitionKey}";
+            var proxyUrl = $"{url}/{employee.Name}?PartitionKind={partitionKind}&PartitionKey={partitionKey}";
 
             var response = await _httpClient.PutAsync(proxyUrl, putContent);
             return new ContentResult

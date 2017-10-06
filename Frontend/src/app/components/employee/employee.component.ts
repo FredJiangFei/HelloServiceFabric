@@ -1,16 +1,17 @@
 import {Component, OnInit} from '@angular/core';
-import {Employee} from "../../models/employee";
 import {EmployeeService} from "../../services/employee.service";
+import {Employee} from "../../models/employee";
 
 @Component({
   selector: 'asw-employee',
   templateUrl: './employee.component.html'
 })
 export class EmployeeComponent implements OnInit {
-  public employees: string[];
-  public employee: string;
+  public employees: Employee[];
+  public employee: Employee;
 
   constructor(private employeeService: EmployeeService) {
+    this.employee = new Employee();
   }
 
   ngOnInit() {
@@ -22,13 +23,13 @@ export class EmployeeComponent implements OnInit {
       .subscribe(employees => this.employees = employees);
   }
 
-  public add(employee: string) {
-    this.employeeService.updateBy(employee)
+  public add(employee: Employee) {
+    this.employeeService.create(employee)
       .subscribe(e => this.getEmployees());
   }
 
-  public delete(employee: string) {
-    this.employeeService.delete(employee)
+  public delete(employee: Employee) {
+    this.employeeService.delete(employee.name)
       .subscribe(e => this.getEmployees());
   }
 }
