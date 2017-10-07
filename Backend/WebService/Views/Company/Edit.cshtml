@@ -3,20 +3,21 @@
 {
     <fieldset>
         <legend>Company</legend>
-        <div>
+        <div class="row">
             @Html.LabelFor(model => model.Name)
-            @Html.TextBoxFor(model => model.Name)
+            @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
         </div>
-        <div>
+        <div class="row">
             @Html.LabelFor(model => model.Address)
-            @Html.TextBoxFor(model => model.Address)
+            @Html.TextBoxFor(model => model.Address, new { @class = "form-control" })
         </div>
-        
-        <div>
-            @Html.HiddenFor(model => model.Id)
+
+        <div class="row">
+            @Html.TextBoxFor(model => model.Id)
         </div>
-        <div>
-            <input type="submit" value="Edit" />
+
+        <div class="row">
+            <input type="submit" value="Edit" class="btn-primary btn" />
         </div>
     </fieldset>
 }

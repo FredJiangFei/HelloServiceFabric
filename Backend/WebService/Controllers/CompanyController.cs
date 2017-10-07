@@ -12,8 +12,6 @@ using Microsoft.ServiceFabric.Actors.Query;
 
 namespace WebService.Controllers
 {
-
-    //[Route("api/[controller]")]
     public class CompanyController : Controller
     {
         private readonly StatelessServiceContext _serviceContext;
@@ -80,6 +78,24 @@ namespace WebService.Controllers
             var proxy = ActorProxy.Create<IActorCompany>(id, new Uri(serviceUri));
             await proxy.Create(command, CancellationToken.None);
 
+            return RedirectToAction("Index");
+        }
+
+  
+        public async Task<IActionResult> Edit(long id)
+        {
+            var serviceUri = GetServiceUri();
+            var proxy = ActorProxy.Create<IActorCompany>(new ActorId(id), new Uri(serviceUri));
+            var company = proxy.GetCompany();
+            return View(company.Result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(Company command)
+        {
+            var serviceUri = GetServiceUri();
+            var proxy = ActorProxy.Create<IActorCompany>(new ActorId(command.Id), new Uri(serviceUri));
+            await proxy.Update(command, CancellationToken.None);
             return RedirectToAction("Index");
         }
 
