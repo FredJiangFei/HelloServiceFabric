@@ -13,7 +13,7 @@ using Microsoft.ServiceFabric.Actors.Query;
 namespace WebService.Controllers
 {
 
-    [Route("api/[controller]")]
+    //[Route("api/[controller]")]
     public class CompanyController : Controller
     {
         private readonly StatelessServiceContext _serviceContext;
@@ -29,67 +29,68 @@ namespace WebService.Controllers
             _fabricClient = fabricClient;
         }
 
-        [HttpGet]
-        public async Task<List<Company>> Index()
+        public async Task<IActionResult> Index()
         {
             var serviceUri = GetServiceUri();
             var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(serviceUri));
-            var activeActors = new List<ActorInformation>();
+            var companies = new List<Company>();
+
 
             foreach (var p in partitions)
             {
                 var partitionKey = ((Int64RangePartitionInformation)p.PartitionInformation).LowKey;
                 var proxy = ActorServiceProxy.Create(new Uri(serviceUri), partitionKey);
                 ContinuationToken ct = null;
-                
+
                 do
                 {
                     var page = await proxy.GetActorsAsync(ct, CancellationToken.None);
-                    activeActors.AddRange(page.Items.Where(x => x.IsActive));                   
+                    var items = page.Items.Where(x => x.IsActive);
+
+                    foreach (var i in items)
+                    {
+                        var pp = ActorProxy.Create<IActorCompany>(i.ActorId, new Uri(serviceUri));
+                        var cp = pp.GetCompany();
+                        companies.Add(new Company
+                        {
+                            Id = i.ActorId.GetLongId(),
+                            Name = cp.Result.Name,
+                            Address = cp.Result.Address
+                        });
+                    }
                     ct = page.ContinuationToken;
                 }
                 while (ct != null);
             }
 
-            var companies = activeActors.Select(x => ActorProxy.Create<IActorCompany>(x.ActorId, new Uri(serviceUri)).GetCompany(x.ActorId.GetLongId()).Result);
-            return companies.ToList();
+            return View(companies.ToList());
         }
 
-        [Route("{id}")]
-        [HttpGet]
-        public async Task<Company> GetById(long id)
+        public IActionResult Create()
         {
-            var serviceUri = GetServiceUri();
-            return await ActorProxy.Create<IActorCompany>(new ActorId(id), new Uri(serviceUri)).GetCompany(id);
+            return View();
         }
 
         [HttpPost]
-        public async Task Create([FromBody]Company command)
+        public async Task<IActionResult> Create(Company command)
         {
             var serviceUri = GetServiceUri();
             var id = ActorId.CreateRandom();
 
             var proxy = ActorProxy.Create<IActorCompany>(id, new Uri(serviceUri));
             await proxy.Create(command, CancellationToken.None);
+
+            return RedirectToAction("Index");
         }
 
-        [HttpPut]
-        public async Task Edit([FromBody]Company command)
-        {
-            var serviceUri = GetServiceUri();
-            var proxy = ActorProxy.Create<IActorCompany>(new ActorId(command.Id), new Uri(serviceUri));
-            await proxy.Update(command, CancellationToken.None);
-        }
-
-        [Route("{id}")]
-        [HttpDelete]
-        public async Task Delete(long id)
+        public async Task<IActionResult> Delete(long id)
         {
             var serviceUri = GetServiceUri();
             var actorToDelete = new ActorId(id);
 
             var proxy = ActorServiceProxy.Create(new Uri(serviceUri), actorToDelete);
             await proxy.DeleteActorAsync(actorToDelete, CancellationToken.None);
+            return RedirectToAction("Index");
         }
 
         private string GetServiceUri()

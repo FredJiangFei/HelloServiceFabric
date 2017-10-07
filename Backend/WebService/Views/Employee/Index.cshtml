@@ -1,0 +1,40 @@
+﻿@model IEnumerable<WebService.ViewModel.Employee>
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+@using (Html.BeginForm("Create", "Employee"))
+{
+    <fieldset>
+        <legend>Company</legend>
+        <div>
+          <input name="name"/>
+        </div>
+        <div>
+            <input type="submit" value="Create" />
+        </div>
+    </fieldset>
+}
+
+<table class="table table-responsive">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Vote</th>
+        <th></th>
+    </tr>
+    </thead>
+
+    @foreach (var company in Model)
+    {
+        <tr>
+            <td>@company.Name</td>
+            <td>@company.Vote</td>
+            <td>
+                @Html.ActionLink("Vote","Create", "Employee", new { name = company.Name }) |
+                @Html.ActionLink("Delete", "Delete", "Employee", new { name = company.Name })
+            </td>
+        </tr>
+    }
+</table>

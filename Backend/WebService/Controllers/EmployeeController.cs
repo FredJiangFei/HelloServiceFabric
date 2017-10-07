@@ -11,7 +11,6 @@ using WebService.ViewModel;
 
 namespace WebService.Controllers
 {
-    [Route("api/[controller]")]
     public class EmployeeController : Controller
     {
         private readonly HttpClient _httpClient;
@@ -36,9 +35,7 @@ namespace WebService.Controllers
             return $"http://localhost:{port}/{url.Replace("fabric:/", "")}/api/Employee";
         }
 
-        // GET: api/Employee
-        [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Index()
         {
             var url = GetServiceUri();
             var response = await _httpClient.GetAsync($"{url}?PartitionKind={partitionKind}&PartitionKey={partitionKey}");
@@ -56,22 +53,16 @@ namespace WebService.Controllers
                     Vote = x.Value
                 });
 
-            return Json(employees);
+            return View(employees);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody]Employee employee)
+        public async Task<IActionResult> Create(string name)
         {
-            var putContent = StringContent(employee.Name);
+            var putContent = StringContent(name);
             var url = GetServiceUri();
-            var proxyUrl = $"{url}/{employee.Name}?PartitionKind={partitionKind}&PartitionKey={partitionKey}";
-
-            var response = await _httpClient.PutAsync(proxyUrl, putContent);
-            return new ContentResult
-            {
-                StatusCode = (int)response.StatusCode,
-                Content = await response.Content.ReadAsStringAsync()
-            };
+            var proxyUrl = $"{url}/{name}?PartitionKind={partitionKind}&PartitionKey={partitionKey}";
+            await _httpClient.PutAsync(proxyUrl, putContent);
+            return RedirectToAction("Index");
         }
 
         private static StringContent StringContent(string name)
@@ -82,16 +73,11 @@ namespace WebService.Controllers
             return putContent;
         }
 
-        // DELETE: api/Employee/name
-        [HttpDelete("{name}")]
         public async Task<IActionResult> Delete(string name)
         {
             var url = GetServiceUri();
-            var response = await _httpClient.DeleteAsync($"{url}/{name}?PartitionKind={partitionKind}&PartitionKey={partitionKey}");
-
-            return response.StatusCode != System.Net.HttpStatusCode.OK
-                ? StatusCode((int)response.StatusCode)
-                : new OkResult();
+            await _httpClient.DeleteAsync($"{url}/{name}?PartitionKind={partitionKind}&PartitionKey={partitionKey}");
+            return RedirectToAction("Index");
         }
     }
 }

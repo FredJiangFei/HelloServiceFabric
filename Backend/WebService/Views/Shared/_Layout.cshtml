@@ -44,6 +44,12 @@
                 <ul class="nav navbar-nav" id="navbarUl">
                     <li id="navHome">
                         <a href="/">Home</a>
+                    </li>  
+                    <li id="navCompany">
+                        @Html.ActionLink("Company","Index","Company")
+                    </li>
+                    <li id="navEmployee">
+                       @Html.ActionLink("Employee","Index", "Employee")
                     </li>
                     <li id="navStateless">
                         <a href="/Home/Stateless">Stateless</a>

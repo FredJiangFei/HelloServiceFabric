@@ -1,15 +1,16 @@
-﻿@using ActorCompany
-@model List<Company>
+﻿@{
+    ViewData["Title"] = "SF OneApp - Company";
+}
 
-@Html.ActionLink("Create", "Create", "Company")
+@Html.ActionLink("Create", "Create", "Company", new { @class = "btn btn-primary" })
 <table class="table table-responsive">
     <thead>
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th></th>
-        </tr>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Address</th>
+        <th></th>
+    </tr>
     </thead>
 
     @foreach (var company in Model)

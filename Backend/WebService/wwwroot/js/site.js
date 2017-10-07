@@ -165,6 +165,9 @@ function navTab() {
         case "":
             document.getElementById('navHome').className = "active";
             break;
+        case "Company":
+            document.getElementById('navCompany').className = "active";
+            break;
         case "Stateless":
             document.getElementById('navStateless').className = "active";
             break;

@@ -16,10 +16,9 @@ namespace ActorCompany
 
         private string stateName = "Company";
 
-        public Task<Company> GetCompany(long actorId)
+        public Task<Company> GetCompany()
         {
             var result = StateManager.GetStateAsync<Company>(stateName);
-            result.Result.Id = actorId;
             return result;
         }
 
@@ -35,8 +34,6 @@ namespace ActorCompany
         public async Task Update(Company command, CancellationToken token)
         {
             await StateManager.SetStateAsync(stateName, command, token);
-
-            //await StateManager.AddOrUpdateStateAsync(stateNam/e, command, (key, value) => command, token);
         }
 
         public Task Remove()
