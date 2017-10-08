@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using WebService.ViewModel;
+using StatefulBackendService.Domain;
 
 namespace WebService.Controllers
 {
@@ -64,67 +64,97 @@ namespace WebService.Controllers
                     return StatusCode((int)response.StatusCode);
                 }
 
-                var list = JsonConvert.DeserializeObject<List<KeyValuePair<string, int>>>(
+                var list = JsonConvert.DeserializeObject<List<KeyValuePair<Guid, Employee>>>(
                     await response.Content.ReadAsStringAsync());
 
                 if (list != null && list.Any())
                 {
-                    employees.AddRange(list.Select(x => new Employee
-                    {
-                        Name = x.Key,
-                        Vote = x.Value
-                    }));
+                    employees.AddRange(list.Select(x=>x.Value));
                 }
             }
             return View(employees);
         }
 
-        public async Task<IActionResult> Create(string name)
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> Create(Employee employee)
         {
             var url = GetApiUri();
-            var partitionKey = GetPartitionKey(name);
+            var partitionKey = GetPartitionKey(employee.Name);
             var key = $"PartitionKey={partitionKey}";
             var kind = $"PartitionKind={PartitionKind}";
 
-            var proxyUrl = $"{url}/{name}?{kind}&{key}";
+            var proxyUrl = $"{url}?{kind}&{key}";
 
-            var putContent = StringContent(name);
+            var putContent = StringContent(employee);
+            await _httpClient.PostAsync(proxyUrl, putContent);
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var url = GetApiUri();
+            var partitionKey = GetPartitionKey("23");
+            var key = $"PartitionKey={partitionKey}";
+            var kind = $"PartitionKind={PartitionKind}";
+
+            var proxyUrl = $"{url}/{id}?{kind}&{key}";
+            var response = await _httpClient.GetAsync(proxyUrl);
+            var employee = JsonConvert.DeserializeObject<KeyValuePair<Guid, Employee>>(await response.Content.ReadAsStringAsync());
+
+            return View(employee.Value);
+        }
+
+        public async Task<IActionResult> Edit(Employee employee)
+        {
+            var url = GetApiUri();
+            var partitionKey = GetPartitionKey(employee.Name);
+            var key = $"PartitionKey={partitionKey}";
+            var kind = $"PartitionKind={PartitionKind}";
+
+            var proxyUrl = $"{url}?{kind}&{key}";
+
+            var putContent = StringContent(employee);
             await _httpClient.PutAsync(proxyUrl, putContent);
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var url = GetApiUri();
+            var partitionKey = GetPartitionKey(id.ToString());
+            var key = $"PartitionKey={partitionKey}";
+            var kind = $"PartitionKind={PartitionKind}";
+            await _httpClient.DeleteAsync($"{url}/{id}?{kind}&{key}");
             return RedirectToAction("Index");
         }
 
         private static int GetPartitionKey(string key)
         {
-            if (string.IsNullOrEmpty(key))
-                return 0;
+            return 0;
+            //if (string.IsNullOrEmpty(key))
+            //    return 0;
 
-            var firstLetterOfKey = key.First();
-            var partitionKeyInt = char.ToUpper(firstLetterOfKey) - 'A';
+            //var firstLetterOfKey = key.First();
+            //var partitionKeyInt = char.ToUpper(firstLetterOfKey) - 'A';
 
-            if (partitionKeyInt < 0 || partitionKeyInt > 25)
-            {
-                throw new ArgumentException("The key must begin with a letter between A and Z");
-            }
+            //if (partitionKeyInt < 0 || partitionKeyInt > 25)
+            //{
+            //    throw new ArgumentException("The key must begin with a letter between A and Z");
+            //}
 
-            return partitionKeyInt;
+            //return partitionKeyInt;
         }
 
-        private static StringContent StringContent(string name)
+        private static StringContent StringContent(Employee employee)
         {
-            string payload = $"{{ 'name' : '{name}' }}";
-            StringContent putContent = new StringContent(payload, Encoding.UTF8, "application/json");
+            var payload = $"{{ 'name' : '{employee.Name}'+',age' : '{employee.Age}' }}";
+            var putContent = new StringContent(payload, Encoding.UTF8, "application/json");
             putContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             return putContent;
-        }
-
-        public async Task<IActionResult> Delete(string name)
-        {
-            var url = GetApiUri();
-            var partitionKey = GetPartitionKey(name);
-            var key = $"PartitionKey={partitionKey}";
-            var kind = $"PartitionKind={PartitionKind}";
-            await _httpClient.DeleteAsync($"{url}/{name}?{kind}&{key}");
-            return RedirectToAction("Index");
         }
     }
 }

@@ -7,13 +7,12 @@ using System;
 namespace ActorCompany
 {
     [StatePersistence(StatePersistence.Persisted)]
-    internal class ActorCompany : Actor, IActorCompany
+    internal class ActorCompany : Actor, IActorCompany, IRemindable
     {
         public ActorCompany(ActorService actorService, ActorId actorId)
             : base(actorService, actorId)
         {
         }
-
         public readonly string StateName = "Company";
 
         public Task<Company> GetCompany()
@@ -39,6 +38,30 @@ namespace ActorCompany
         public Task Remove()
         {
             return StateManager.RemoveStateAsync(StateName);
+        }
+
+        protected override async Task OnActivateAsync()
+        {
+            string reminderName = "Pay cell phone bill";
+            int amountInDollars = 100;
+
+            IActorReminder reminderRegistration = await this.RegisterReminderAsync(
+                reminderName,
+                BitConverter.GetBytes(amountInDollars),
+                TimeSpan.FromDays(3),
+                TimeSpan.FromDays(1));
+
+            await base.OnActivateAsync();
+        }
+
+        public Task ReceiveReminderAsync(string reminderName, byte[] state, TimeSpan dueTime, TimeSpan period)
+        {
+            if (reminderName.Equals("Pay cell phone bill"))
+            {
+                int amountToPay = BitConverter.ToInt32(state, 0);
+                System.Console.WriteLine("Please pay your cell phone bill of ${0}!", amountToPay);
+            }
+            return Task.FromResult(true);
         }
     }
 }

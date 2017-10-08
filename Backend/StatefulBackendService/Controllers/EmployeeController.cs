@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.ServiceFabric.Data;
 using Microsoft.ServiceFabric.Data.Collections;
+using StatefulBackendService.Domain;
 
 namespace StatefulBackendService.Controllers
 {
@@ -42,35 +43,64 @@ namespace StatefulBackendService.Controllers
             return Json(result);
         }
 
-
-
-        // PUT api/VoteData/name
-        [HttpPut("{name}")]
-        public async Task<IActionResult> Put(string name)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(Guid id)
         {
-            var votes = await _stateManager.GetOrAddAsync<IReliableDictionary<string, int>>(DictionaryName);
+            var dictionary =
+                await this._stateManager.GetOrAddAsync<IReliableDictionary<Guid, Employee>>(DictionaryName);
+
+            using (var tx = this._stateManager.CreateTransaction())
+            {
+                var result = await dictionary.TryGetValueAsync(tx, id);
+                if (result.HasValue)
+                {
+                    return this.Ok(result.Value);
+                }
+
+                return this.NotFound();
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody]Employee employee)
+        {
+            var dictionary = await _stateManager.GetOrAddAsync<IReliableDictionary<Guid,Employee>>(DictionaryName);
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                await votes.AddOrUpdateAsync(tx, name, 1, (key, oldvalue) => oldvalue + 1);
+                employee.Id = Guid.NewGuid();
+                await dictionary.SetAsync(tx, employee.Id, employee);
                 await tx.CommitAsync();
             }
 
             return new OkResult();
         }
 
-        // DELETE api/VoteData/name
-        [HttpDelete("{name}")]
-        public async Task<IActionResult> Delete(string name)
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody]Employee employee)
         {
-            var votes = await _stateManager.GetOrAddAsync<IReliableDictionary<string, int>>(DictionaryName);
+            var votes = await _stateManager.GetOrAddAsync<IReliableDictionary<Guid,Employee>>(DictionaryName);
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                if (!await votes.ContainsKeyAsync(tx, name))
+                await votes.AddOrUpdateAsync(tx, employee.Id, employee, (key, oldvalue) => employee);
+                await tx.CommitAsync();
+            }
+
+            return new OkResult();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var votes = await _stateManager.GetOrAddAsync<IReliableDictionary<Guid, Employee>>(DictionaryName);
+
+            using (var tx = _stateManager.CreateTransaction())
+            {
+                if (!await votes.ContainsKeyAsync(tx, id))
                     return new NotFoundResult();
 
-                await votes.TryRemoveAsync(tx, name);
+                await votes.TryRemoveAsync(tx, id);
                 await tx.CommitAsync();
                 return new OkResult();
             }

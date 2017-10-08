@@ -1,21 +1,6 @@
-﻿@model IEnumerable<WebService.ViewModel.Employee>
+﻿@model IEnumerable<StatefulBackendService.Domain.Employee>
 
-@{
-    ViewBag.Title = "title";
-    Layout = "_Layout";
-}
-@using (Html.BeginForm("Create", "Employee"))
-{
-    <fieldset>
-        <legend>Company</legend>
-        <div>
-          <input name="name"/>
-        </div>
-        <div>
-            <input type="submit" value="Create" />
-        </div>
-    </fieldset>
-}
+@Html.ActionLink("Create", "Create", "Employee")
 
 <table class="table table-responsive">
     <thead>
@@ -26,14 +11,14 @@
     </tr>
     </thead>
 
-    @foreach (var company in Model)
+    @foreach (var e in Model)
     {
         <tr>
-            <td>@company.Name</td>
-            <td>@company.Vote</td>
+            <td>@e.Name</td>
+            <td>@e.Vote</td>
             <td>
-                @Html.ActionLink("Vote","Create", "Employee", new { name = company.Name }) |
-                @Html.ActionLink("Delete", "Delete", "Employee", new { name = company.Name })
+                @Html.ActionLink("Edit", "Edit", "Employee", new { id = e.Id }, new { @class = "btn btn-primary" }) |
+                @Html.ActionLink("Delete", "Delete", "Employee", new { id = e.Id }, new { @class = "btn btn-danger" })
             </td>
         </tr>
     }
