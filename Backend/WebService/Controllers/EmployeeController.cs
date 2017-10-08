@@ -80,6 +80,7 @@ namespace WebService.Controllers
             return View();
         }
 
+        [HttpPost]
         public async Task<IActionResult> Create(Employee employee)
         {
             var url = GetApiUri();
@@ -108,6 +109,7 @@ namespace WebService.Controllers
             return View(employee.Value);
         }
 
+        [HttpPut]
         public async Task<IActionResult> Edit(Employee employee)
         {
             var url = GetApiUri();
