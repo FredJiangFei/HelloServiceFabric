@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ namespace StatefulBackendService.Controllers
     public class EmployeeController : Controller
     {
         private readonly IReliableStateManager _stateManager;
+        private static readonly Uri DictionaryName = new Uri("store:/employees");
 
         public EmployeeController(IReliableStateManager stateManager)
         {
@@ -21,34 +23,36 @@ namespace StatefulBackendService.Controllers
         public async Task<IActionResult> Get()
         {
             var ct = new CancellationToken();
+            var votes = await _stateManager.TryGetAsync<IReliableDictionary<string, int>>(DictionaryName);
+            var result = new List<KeyValuePair<string, int>>();
 
-            var votesDictionary = await _stateManager.GetOrAddAsync<IReliableDictionary<string, int>>("employees");
+            if (!votes.HasValue)
+                return Json(result);
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                var list = await votesDictionary.CreateEnumerableAsync(tx);
-
+                var list = await votes.Value.CreateEnumerableAsync(tx);
                 var enumerator = list.GetAsyncEnumerator();
 
-                var result = new List<KeyValuePair<string, int>>();
                 while (await enumerator.MoveNextAsync(ct))
                 {
                     result.Add(enumerator.Current);
                 }
-
-                return Json(result);
             }
+            return Json(result);
         }
+
+
 
         // PUT api/VoteData/name
         [HttpPut("{name}")]
         public async Task<IActionResult> Put(string name)
         {
-            var votesDictionary = await _stateManager.GetOrAddAsync<IReliableDictionary<string, int>>("employees");
+            var votes = await _stateManager.GetOrAddAsync<IReliableDictionary<string, int>>(DictionaryName);
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                await votesDictionary.AddOrUpdateAsync(tx, name, 1, (key, oldvalue) => oldvalue + 1);
+                await votes.AddOrUpdateAsync(tx, name, 1, (key, oldvalue) => oldvalue + 1);
                 await tx.CommitAsync();
             }
 
@@ -59,14 +63,14 @@ namespace StatefulBackendService.Controllers
         [HttpDelete("{name}")]
         public async Task<IActionResult> Delete(string name)
         {
-            var votesDictionary = await _stateManager.GetOrAddAsync<IReliableDictionary<string, int>>("employees");
+            var votes = await _stateManager.GetOrAddAsync<IReliableDictionary<string, int>>(DictionaryName);
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                if (!await votesDictionary.ContainsKeyAsync(tx, name))
+                if (!await votes.ContainsKeyAsync(tx, name))
                     return new NotFoundResult();
 
-                await votesDictionary.TryRemoveAsync(tx, name);
+                await votes.TryRemoveAsync(tx, name);
                 await tx.CommitAsync();
                 return new OkResult();
             }

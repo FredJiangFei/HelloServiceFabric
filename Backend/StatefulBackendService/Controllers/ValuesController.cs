@@ -59,7 +59,7 @@ namespace StatefulBackendService.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+            [HttpGet("{id}")]
         public async Task<IActionResult> Get(string name)
         {
             try

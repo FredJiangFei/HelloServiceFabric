@@ -1,18 +1,25 @@
 ﻿@model ActorCompany.Company
 @using (Html.BeginForm("Create", "Company"))
 {
-    <fieldset>
-        <legend>Company</legend>
-        <div class="row">
+    <div class="container">
+        <div class="col-md-12">
             @Html.LabelFor(model => model.Name)
             @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
         </div>
-        <div class="row">
+        <div class="col-md-12">
             @Html.LabelFor(model => model.Address)
             @Html.TextBoxFor(model => model.Address, new { @class = "form-control" })
+        </div> 
+        <div class="col-md-12">
+            @Html.LabelFor(model => model.Tel)
+            @Html.TextBoxFor(model => model.Tel, new { @class = "form-control" })
+        </div> 
+        <div class="col-md-12">
+            @Html.LabelFor(model => model.ZipCode)
+            @Html.TextBoxFor(model => model.ZipCode, new { @class = "form-control" })
+        </div> 
+        <div class="col-md-12 text-right">
+            <input type="submit" value="Create" class="btn-primary btn form-control" />
         </div>
-        <div class="row">
-            <input type="submit" value="Create" class="btn-primary btn" />
-        </div>
-    </fieldset>
+    </div>
 }

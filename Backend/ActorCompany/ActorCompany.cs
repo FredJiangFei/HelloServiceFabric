@@ -14,17 +14,17 @@ namespace ActorCompany
         {
         }
 
-        private string stateName = "Company";
+        public readonly string StateName = "Company";
 
         public Task<Company> GetCompany()
         {
-            var result = StateManager.GetStateAsync<Company>(stateName);
+            var result = StateManager.GetStateAsync<Company>(StateName);
             return result;
         }
 
         public async Task Create(Company command, CancellationToken token)
         {
-            var added = await StateManager.TryAddStateAsync<Company>(stateName, command, token);
+            var added = await StateManager.TryAddStateAsync<Company>(StateName, command, token);
             if (!added)
             {
                 throw new InvalidOperationException("Processing for this actor has already started.");
@@ -33,12 +33,12 @@ namespace ActorCompany
 
         public async Task Update(Company command, CancellationToken token)
         {
-            await StateManager.SetStateAsync(stateName, command, token);
+            await StateManager.SetStateAsync(StateName, command, token);
         }
 
         public Task Remove()
         {
-            return StateManager.RemoveStateAsync(stateName);
+            return StateManager.RemoveStateAsync(StateName);
         }
     }
 }

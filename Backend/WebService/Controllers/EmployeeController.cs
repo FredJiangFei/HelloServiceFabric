@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Fabric;
 using System.Linq;
 using System.Net.Http;
@@ -16,21 +17,29 @@ namespace WebService.Controllers
         private readonly HttpClient _httpClient;
         private readonly StatelessServiceContext _serviceContext;
         private readonly ConfigSettings _configSettings;
-        string partitionKind = "Int64Range";
-        string partitionKey = "0";
+        private readonly FabricClient _fabricClient;
+        private const string PartitionKind = "Int64Range";
 
         public EmployeeController(HttpClient httpClient,
             StatelessServiceContext serviceContext,
-            ConfigSettings configSettings)
+            ConfigSettings configSettings, FabricClient fabricClient)
         {
             _httpClient = httpClient;
             _serviceContext = serviceContext;
             _configSettings = configSettings;
+            _fabricClient = fabricClient;
         }
+
         private string GetServiceUri()
         {
             var url = _serviceContext.CodePackageActivationContext.ApplicationName +
                 "/" + _configSettings.StatefulBackendServiceName;
+            return url;
+        }
+
+        private string GetApiUri()
+        {
+            var url = GetServiceUri();
             var port = _configSettings.ReverseProxyPort;
             return $"http://localhost:{port}/{url.Replace("fabric:/", "")}/api/Employee";
         }
@@ -38,31 +47,66 @@ namespace WebService.Controllers
         public async Task<IActionResult> Index()
         {
             var url = GetServiceUri();
-            var response = await _httpClient.GetAsync($"{url}?PartitionKind={partitionKind}&PartitionKey={partitionKey}");
 
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+            var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(url));
+            var employees = new List<Employee>();
+
+            foreach (var p in partitions)
             {
-                return StatusCode((int)response.StatusCode);
-            }
+                var key = $"PartitionKey={((Int64RangePartitionInformation)p.PartitionInformation).LowKey}";
+                var kind = $"PartitionKind={p.PartitionInformation.Kind}";
 
-            var votes = JsonConvert.DeserializeObject<List<KeyValuePair<string, int>>>(await response.Content.ReadAsStringAsync());
+                var prxoyUrl = GetApiUri();
+                var response = await _httpClient.GetAsync($"{prxoyUrl}?{kind}&{key}");
 
-            var employees = votes.Select(x => new Employee
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
                 {
-                    Name = x.Key,
-                    Vote = x.Value
-                });
+                    return StatusCode((int)response.StatusCode);
+                }
 
+                var list = JsonConvert.DeserializeObject<List<KeyValuePair<string, int>>>(
+                    await response.Content.ReadAsStringAsync());
+
+                if (list != null && list.Any())
+                {
+                    employees.AddRange(list.Select(x => new Employee
+                    {
+                        Name = x.Key,
+                        Vote = x.Value
+                    }));
+                }
+            }
             return View(employees);
         }
 
         public async Task<IActionResult> Create(string name)
         {
+            var url = GetApiUri();
+            var partitionKey = GetPartitionKey(name);
+            var key = $"PartitionKey={partitionKey}";
+            var kind = $"PartitionKind={PartitionKind}";
+
+            var proxyUrl = $"{url}/{name}?{kind}&{key}";
+
             var putContent = StringContent(name);
-            var url = GetServiceUri();
-            var proxyUrl = $"{url}/{name}?PartitionKind={partitionKind}&PartitionKey={partitionKey}";
             await _httpClient.PutAsync(proxyUrl, putContent);
             return RedirectToAction("Index");
+        }
+
+        private static int GetPartitionKey(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                return 0;
+
+            var firstLetterOfKey = key.First();
+            var partitionKeyInt = char.ToUpper(firstLetterOfKey) - 'A';
+
+            if (partitionKeyInt < 0 || partitionKeyInt > 25)
+            {
+                throw new ArgumentException("The key must begin with a letter between A and Z");
+            }
+
+            return partitionKeyInt;
         }
 
         private static StringContent StringContent(string name)
@@ -75,8 +119,11 @@ namespace WebService.Controllers
 
         public async Task<IActionResult> Delete(string name)
         {
-            var url = GetServiceUri();
-            await _httpClient.DeleteAsync($"{url}/{name}?PartitionKind={partitionKind}&PartitionKey={partitionKey}");
+            var url = GetApiUri();
+            var partitionKey = GetPartitionKey(name);
+            var key = $"PartitionKey={partitionKey}";
+            var kind = $"PartitionKind={PartitionKind}";
+            await _httpClient.DeleteAsync($"{url}/{name}?{kind}&{key}");
             return RedirectToAction("Index");
         }
     }

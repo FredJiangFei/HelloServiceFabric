@@ -1,23 +1,26 @@
-﻿@model  ActorCompany.Company
+﻿@model  WebService.ViewModel.CompanyViewModel
 @using (Html.BeginForm("Edit", "Company"))
 {
-    <fieldset>
-        <legend>Company</legend>
-        <div class="row">
+    <div class="container">
+        <div class="col-md-12">
             @Html.LabelFor(model => model.Name)
             @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
         </div>
-        <div class="row">
+        <div class="col-md-12">
             @Html.LabelFor(model => model.Address)
             @Html.TextBoxFor(model => model.Address, new { @class = "form-control" })
         </div>
-
-        <div class="row">
-            @Html.TextBoxFor(model => model.Id)
+        <div class="col-md-12">
+            @Html.LabelFor(model => model.Tel)
+            @Html.TextBoxFor(model => model.Tel, new { @class = "form-control" })
         </div>
-
-        <div class="row">
-            <input type="submit" value="Edit" class="btn-primary btn" />
+        <div class="col-md-12">
+            @Html.LabelFor(model => model.ZipCode)
+            @Html.TextBoxFor(model => model.ZipCode, new { @class = "form-control" })
         </div>
-    </fieldset>
+        <div class="col-md-12 text-right">
+            @Html.HiddenFor(model => model.Id)
+            <input type="submit" value="Edit" class="btn-primary btn form-control"/>
+        </div>
+    </div>
 }
