@@ -76,11 +76,9 @@ namespace WebService.Controllers
         {
             var url = GetApiUri();
             var response = await _httpClient.GetAsync($"{url}/{id}?{GetKeyAndKind()}");
-
-            var employee = JsonConvert.DeserializeObject<KeyValuePair<Guid, Employee>>(
-                await response.Content.ReadAsStringAsync());
-
-            return View(employee.Value);
+            var jsonContent = await response.Content.ReadAsStringAsync();
+            var employee = JsonConvert.DeserializeObject<Employee>(jsonContent);
+            return View(employee);
         }
 
         [HttpPost]
@@ -132,7 +130,8 @@ namespace WebService.Controllers
 
         private static StringContent StringContent(Employee employee)
         {
-            var payload = $"{{ 'name' : '{employee.Name}','age' : '{employee.Age}' }}";
+            //var payload = $"{{ 'name' : '{employee.Name}','age' : '{employee.Age}' }}";
+            var payload = JsonConvert.SerializeObject(employee);
             var putContent = new StringContent(payload, Encoding.UTF8, "application/json");
             putContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             return putContent;

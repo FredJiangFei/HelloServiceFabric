@@ -68,9 +68,11 @@ namespace StatefulBackendService.Controllers
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                var result = await dictionary.TryGetValueAsync(tx, id);
-                result.Value.VoteToEmployee();
-                await dictionary.SetAsync(tx, id, result.Value);
+                var currentEmployee = await dictionary.TryGetValueAsync(tx, id);
+
+                var updatedEmployee =   currentEmployee.Value.Copy();
+                updatedEmployee.VoteToEmployee();
+                await dictionary.SetAsync(tx, id, updatedEmployee);
                 await tx.CommitAsync();
             }
             return new OkResult();
@@ -94,11 +96,15 @@ namespace StatefulBackendService.Controllers
         [HttpPut]
         public async Task<IActionResult> Put([FromBody]Employee employee)
         {
-            var votes = await _stateManager.GetOrAddAsync<IReliableDictionary<Guid,Employee>>(DictionaryName);
+            var dictionary = await _stateManager.GetOrAddAsync<IReliableDictionary<Guid,Employee>>(DictionaryName);
 
             using (var tx = _stateManager.CreateTransaction())
             {
-                await votes.AddOrUpdateAsync(tx, employee.Id, employee, (key, oldvalue) => employee);
+                var currentEmployee = await dictionary.TryGetValueAsync(tx, employee.Id);
+
+                var updatedEmployee = currentEmployee.Value.Copy();
+                updatedEmployee.Edit(employee);
+                await dictionary.SetAsync(tx, employee.Id, updatedEmployee);
                 await tx.CommitAsync();
             }
 

@@ -67,4 +67,6 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties bundleconfig_1json__JSONSchema="http://json.schemastore.org/csslintrc" /></VisualStudio></ProjectExtensions>
+
 </Project>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Fabric.Management.ServiceModel;
 
 namespace StatefulBackendService.Domain
 {
@@ -13,6 +12,23 @@ namespace StatefulBackendService.Domain
         public void VoteToEmployee()
         {
             Vote++;
+        }
+
+        public Employee Copy()
+        {
+            return new Employee
+            {
+                Id = Id,
+                Name = Name,
+                Age = Age,
+                Vote = Vote
+            };
+        }
+
+        public void Edit(Employee employee)
+        {
+            Name = employee.Name;
+            Age = employee.Age;
         }
 
     }
