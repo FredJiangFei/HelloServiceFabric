@@ -6,6 +6,7 @@
     <thead>
     <tr>
         <th>Name</th>
+        <th>Age</th>
         <th>Vote</th>
         <th></th>
     </tr>
@@ -15,10 +16,12 @@
     {
         <tr>
             <td>@e.Name</td>
+            <td>@e.Age</td>
             <td>@e.Vote</td>
             <td>
-                @Html.ActionLink("Edit", "Edit", "Employee", new { id = e.Id }, new { @class = "btn btn-primary" }) |
-                @Html.ActionLink("Delete", "Delete", "Employee", new { id = e.Id }, new { @class = "btn btn-danger" })
+                <a href="Employee/Edit?id=@e.Id" class="btn btn-primary">Edit</a> |
+                <a href="Employee/Vote?id=@e.Id" class="btn btn-primary">Vote</a> |
+                <a href="Employee/Delete?id=@e.Id" class="btn btn-danger">Delete</a>
             </td>
         </tr>
     }

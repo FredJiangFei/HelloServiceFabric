@@ -17,17 +17,16 @@ namespace WebService.Controllers
         private readonly HttpClient _httpClient;
         private readonly StatelessServiceContext _serviceContext;
         private readonly ConfigSettings _configSettings;
-        private readonly FabricClient _fabricClient;
         private const string PartitionKind = "Int64Range";
+        private const string PartitionKey = "0";
 
         public EmployeeController(HttpClient httpClient,
             StatelessServiceContext serviceContext,
-            ConfigSettings configSettings, FabricClient fabricClient)
+            ConfigSettings configSettings)
         {
             _httpClient = httpClient;
             _serviceContext = serviceContext;
             _configSettings = configSettings;
-            _fabricClient = fabricClient;
         }
 
         private string GetServiceUri()
@@ -46,33 +45,17 @@ namespace WebService.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var url = GetServiceUri();
+            var url = GetApiUri();
+            var response = await _httpClient.GetAsync($"{url}?{GetKeyAndKind()}");
 
-            var partitions = await this._fabricClient.QueryManager.GetPartitionListAsync(new Uri(url));
-            var employees = new List<Employee>();
-
-            foreach (var p in partitions)
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                var key = $"PartitionKey={((Int64RangePartitionInformation)p.PartitionInformation).LowKey}";
-                var kind = $"PartitionKind={p.PartitionInformation.Kind}";
-
-                var prxoyUrl = GetApiUri();
-                var response = await _httpClient.GetAsync($"{prxoyUrl}?{kind}&{key}");
-
-                if (response.StatusCode != System.Net.HttpStatusCode.OK)
-                {
-                    return StatusCode((int)response.StatusCode);
-                }
-
-                var list = JsonConvert.DeserializeObject<List<KeyValuePair<Guid, Employee>>>(
-                    await response.Content.ReadAsStringAsync());
-
-                if (list != null && list.Any())
-                {
-                    employees.AddRange(list.Select(x=>x.Value));
-                }
+                return StatusCode((int)response.StatusCode);
             }
-            return View(employees);
+
+            var list = JsonConvert.DeserializeObject<List<KeyValuePair<Guid, Employee>>>(
+                await response.Content.ReadAsStringAsync());
+            return View(list.Select(x => x.Value));
         }
 
         public IActionResult Create()
@@ -84,76 +67,72 @@ namespace WebService.Controllers
         public async Task<IActionResult> Create(Employee employee)
         {
             var url = GetApiUri();
-            var partitionKey = GetPartitionKey(employee.Name);
-            var key = $"PartitionKey={partitionKey}";
-            var kind = $"PartitionKind={PartitionKind}";
-
-            var proxyUrl = $"{url}?{kind}&{key}";
-
             var putContent = StringContent(employee);
-            await _httpClient.PostAsync(proxyUrl, putContent);
+            await _httpClient.PostAsync($"{url}?{GetKeyAndKind()}", putContent);
             return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Edit(Guid id)
         {
             var url = GetApiUri();
-            var partitionKey = GetPartitionKey("23");
-            var key = $"PartitionKey={partitionKey}";
-            var kind = $"PartitionKind={PartitionKind}";
+            var response = await _httpClient.GetAsync($"{url}/{id}?{GetKeyAndKind()}");
 
-            var proxyUrl = $"{url}/{id}?{kind}&{key}";
-            var response = await _httpClient.GetAsync(proxyUrl);
-            var employee = JsonConvert.DeserializeObject<KeyValuePair<Guid, Employee>>(await response.Content.ReadAsStringAsync());
+            var employee = JsonConvert.DeserializeObject<KeyValuePair<Guid, Employee>>(
+                await response.Content.ReadAsStringAsync());
 
             return View(employee.Value);
         }
 
-        [HttpPut]
+        [HttpPost]
         public async Task<IActionResult> Edit(Employee employee)
         {
             var url = GetApiUri();
-            var partitionKey = GetPartitionKey(employee.Name);
-            var key = $"PartitionKey={partitionKey}";
-            var kind = $"PartitionKind={PartitionKind}";
-
-            var proxyUrl = $"{url}?{kind}&{key}";
-
             var putContent = StringContent(employee);
-            await _httpClient.PutAsync(proxyUrl, putContent);
+            await _httpClient.PutAsync($"{url}?{GetKeyAndKind()}", putContent);
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Vote(Guid id)
+        {
+            var url = GetApiUri();
+            await _httpClient.GetAsync($"{url}/vote/{id}?{GetKeyAndKind()}");
+
             return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Delete(Guid id)
         {
             var url = GetApiUri();
-            var partitionKey = GetPartitionKey(id.ToString());
-            var key = $"PartitionKey={partitionKey}";
-            var kind = $"PartitionKind={PartitionKind}";
-            await _httpClient.DeleteAsync($"{url}/{id}?{kind}&{key}");
+            await _httpClient.DeleteAsync($"{url}/{id}?{GetKeyAndKind()}");
             return RedirectToAction("Index");
+        }
+
+        private string GetKeyAndKind()
+        {
+            var key = $"PartitionKey={PartitionKey}";
+            var kind = $"PartitionKind={PartitionKind}";
+            return kind + "&" + key;
         }
 
         private static int GetPartitionKey(string key)
         {
-            return 0;
-            //if (string.IsNullOrEmpty(key))
-            //    return 0;
+            if (string.IsNullOrEmpty(key))
+                return 0;
 
-            //var firstLetterOfKey = key.First();
-            //var partitionKeyInt = char.ToUpper(firstLetterOfKey) - 'A';
+            var firstLetterOfKey = key.First();
+            var partitionKeyInt = char.ToUpper(firstLetterOfKey) - 'A';
 
-            //if (partitionKeyInt < 0 || partitionKeyInt > 25)
-            //{
-            //    throw new ArgumentException("The key must begin with a letter between A and Z");
-            //}
+            if (partitionKeyInt < 0 || partitionKeyInt > 25)
+            {
+                throw new ArgumentException("The key must begin with a letter between A and Z");
+            }
 
-            //return partitionKeyInt;
+            return partitionKeyInt;
         }
 
         private static StringContent StringContent(Employee employee)
         {
-            var payload = $"{{ 'name' : '{employee.Name}'+',age' : '{employee.Age}' }}";
+            var payload = $"{{ 'name' : '{employee.Name}','age' : '{employee.Age}' }}";
             var putContent = new StringContent(payload, Encoding.UTF8, "application/json");
             putContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             return putContent;

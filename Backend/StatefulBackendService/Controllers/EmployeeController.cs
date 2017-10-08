@@ -24,8 +24,8 @@ namespace StatefulBackendService.Controllers
         public async Task<IActionResult> Get()
         {
             var ct = new CancellationToken();
-            var votes = await _stateManager.TryGetAsync<IReliableDictionary<string, int>>(DictionaryName);
-            var result = new List<KeyValuePair<string, int>>();
+            var votes = await _stateManager.TryGetAsync<IReliableDictionary<Guid, Employee>>(DictionaryName);
+            var result = new List<KeyValuePair<Guid, Employee>>();
 
             if (!votes.HasValue)
                 return Json(result);
@@ -59,6 +59,21 @@ namespace StatefulBackendService.Controllers
 
                 return this.NotFound();
             }
+        }
+
+        [HttpGet("vote/{id}")]
+        public async Task<IActionResult> Vote(Guid id)
+        {
+            var dictionary = await _stateManager.GetOrAddAsync<IReliableDictionary<Guid, Employee>>(DictionaryName);
+
+            using (var tx = _stateManager.CreateTransaction())
+            {
+                var result = await dictionary.TryGetValueAsync(tx, id);
+                result.Value.VoteToEmployee();
+                await dictionary.SetAsync(tx, id, result.Value);
+                await tx.CommitAsync();
+            }
+            return new OkResult();
         }
 
         [HttpPost]
