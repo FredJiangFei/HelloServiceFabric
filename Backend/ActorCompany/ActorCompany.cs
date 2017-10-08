@@ -59,7 +59,7 @@ namespace ActorCompany
             if (reminderName.Equals("Pay cell phone bill"))
             {
                 int amountToPay = BitConverter.ToInt32(state, 0);
-                System.Console.WriteLine("Please pay your cell phone bill of ${0}!", amountToPay);
+                Console.WriteLine("Please pay your cell phone bill of ${0}!", amountToPay);
             }
             return Task.FromResult(true);
         }
