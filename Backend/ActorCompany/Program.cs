@@ -10,9 +10,13 @@ namespace ActorCompany
         {
             try
             {
-                var runtime = ActorRuntime.RegisterActorAsync<ActorCompany>(
-                    (context, actorType) => new ActorService(context, actorType));
-                runtime.GetAwaiter().GetResult();
+                ActorRuntime.RegisterActorAsync<ActorCompany>(
+                     (context, actorType) => new ActorService(context, actorType, settings: new ActorServiceSettings()
+                     {
+                         //ActorGarbageCollectionSettings = new ActorGarbageCollectionSettings(10, 2)
+                     })
+
+                     ).GetAwaiter().GetResult();
 
                 Thread.Sleep(Timeout.Infinite);
             }
